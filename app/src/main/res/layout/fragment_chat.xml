@@ -1,0 +1,122 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="com.jabber.jconnect.ChatFragment">
+
+    <!-- TODO: Update blank fragment layout -->
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <View
+            android:layout_width="0.8dp"
+            android:layout_height="match_parent"
+            android:background="@drawable/separator" />
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:weightSum="100">
+
+            <TextView
+                android:id="@+id/jid_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="New Text"
+                android:padding="3dp"
+                android:layout_weight="1"
+                android:textSize="18sp"
+                android:textColor="#000000" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.8dp"
+                android:background="@drawable/separator" />
+
+            <ScrollView
+                android:id="@+id/scroll_chat_view"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="87"
+                android:fillViewport="true"
+                android:focusable="true"
+                android:focusableInTouchMode="true"
+                android:contextClickable="true">
+
+                <TextView
+                    android:id="@+id/chat_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:textColor="#000000"
+                    android:singleLine="false"
+                    android:scrollbars="vertical"
+                    android:gravity="top|left"
+                    android:textAlignment="gravity"
+                    android:paddingTop="3dp"
+                    android:paddingLeft="3dp"
+                    android:paddingRight="3dp"
+                    android:paddingBottom="3dp"
+                    android:clickable="true" />
+
+            </ScrollView>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="0.8dp"
+                android:background="@drawable/separator" />
+
+            <LinearLayout
+                android:orientation="horizontal"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_weight="10">
+
+
+                <ScrollView
+                    android:id="@+id/scroll_msg_send"
+                    android:layout_width="0dp"
+                    android:layout_height="match_parent"
+                    android:layout_weight="1"
+                    android:fillViewport="true"
+                    android:layout_gravity="center_vertical">
+
+                    <EditText
+                        android:id="@+id/message_text"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textMultiLine"
+                        android:imeOptions="flagNoExtractUi"
+                        android:ems="10"
+                        android:padding="3dp"
+                        android:focusable="true"
+                        android:textSize="18sp"
+                        android:textIsSelectable="true"
+                        android:textAlignment="gravity"
+                        android:scrollbars="vertical"
+                        android:gravity="top|left"
+                        android:clickable="true"
+                        android:focusableInTouchMode="true" />
+
+                </ScrollView>
+
+                <Button
+                    android:id="@+id/chat_message_send"
+                    style="?android:attr/buttonStyleSmall"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:maxHeight="60sp"
+                    android:text="@string/chat_message_send"
+                    android:layout_gravity="center_horizontal|bottom"
+                    android:textSize="12sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+</FrameLayout>

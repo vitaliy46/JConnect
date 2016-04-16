@@ -1,0 +1,51 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.jabber.jconnect.MainActivity">
+
+    <group android:id="@+id/main">
+
+    <item
+        android:id="@+id/menu_start_service"
+        android:orderInCategory="0"
+        android:title="@string/menu_start_service"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_stop_service"
+        android:orderInCategory="0"
+        android:title="@string/menu_stop_service"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_connect"
+        android:orderInCategory="0"
+        android:title="@string/menu_connect"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_disconnect"
+        android:orderInCategory="0"
+        android:title="@string/menu_disconnect"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_join_muc"
+        android:orderInCategory="0"
+        android:title="@string/menu_join_muc"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/menu_leave_muc"
+        android:orderInCategory="0"
+        android:title="@string/menu_leave_muc"
+        app:showAsAction="never" />
+
+    </group>
+
+    <item
+        android:id="@+id/action_settings"
+        android:orderInCategory="100"
+        android:title="@string/action_settings"
+        app:showAsAction="never" />
+</menu>
