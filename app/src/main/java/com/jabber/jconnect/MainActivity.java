@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
@@ -435,6 +436,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 break;
             case R.id.menu_leave_muc:
                 leaveMuc();
+                break;
+            case R.id.menu_bookmarks_muc:
+                BookmarksDialogFragment bookmarksDialogFragment = new BookmarksDialogFragment();
+                bookmarksDialogFragment.show(fm, "bookmarks_dialog_fragment");
                 break;
             default:
                 break;

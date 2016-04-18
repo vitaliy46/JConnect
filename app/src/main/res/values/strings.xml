@@ -7,6 +7,7 @@
     <string name="menu_disconnect">Отключиться</string>
     <string name="menu_join_muc">Войти в конференцию</string>
     <string name="menu_leave_muc">Покинуть конференцию</string>
+    <string name="menu_bookmarks_muc">Закладки</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_chat">Чат</string>
@@ -14,5 +15,7 @@
     <string name="chat_message_send">Отправить</string>
     <string name="contact_list_header">Список контактов</string>
     <string name="muc_list_header">Список комнат</string>
+
+    <string name="bookmarks_dialog_title">Закладки</string>
 
 </resources>
