@@ -9,6 +9,9 @@
         android:text="@string/bookmarks_dialog_title"
         android:textAlignment="center"
         android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:background="#464646"
         android:id="@+id/dialog_bookmarks_title" />
 
     <View

@@ -29,7 +29,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ContactFragment.OnListFragmentInteractionListener,
         ChatFragment.OnFragmentInteractionListener, MucFragment.OnMucListFragmentInteractionListener,
-        MucChatFragment.OnMucChatFragmentInteractionListener{
+        MucChatFragment.OnMucChatFragmentInteractionListener, BookmarksDialogFragment.NoticeBookmarksDialogListener{
 
     /***********************************************************************************************
      * Реализация связи с сервисом через Messenger
@@ -74,6 +74,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             e.printStackTrace();
         }
     }
+
     /**********************************************************************************************/
 
     // Класс обработчика сообщений сервиса
@@ -159,6 +160,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     // Параметры MucChatActivity
     boolean showMucChatActivity = false;
     private static final int SHOW_MUC_CHAT_ACTIVITY = 10;
+
+    // Диалоговое окно выбора закладок
+    BookmarksDialogFragment bookmarksDialogFragment;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -438,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 leaveMuc();
                 break;
             case R.id.menu_bookmarks_muc:
-                BookmarksDialogFragment bookmarksDialogFragment = new BookmarksDialogFragment();
+                bookmarksDialogFragment = new BookmarksDialogFragment();
                 bookmarksDialogFragment.show(fm, "bookmarks_dialog_fragment");
                 break;
             default:
@@ -558,6 +562,13 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         Bundle b = new Bundle();
         b.putString("send_muc", mucId);
         sendMessage(b);
+    }
+
+    // Реализация методов интерфейса mListener во фрагменте BookmarksDialogFragment
+    @Override
+    public void onBookmarksDialogInteraction(String item) {
+        bookmarksDialogFragment.dismiss();
+        Toast.makeText(getApplicationContext(), item, Toast.LENGTH_SHORT).show();
     }
     ///////////////////////////////////////////////////////////////////
 
