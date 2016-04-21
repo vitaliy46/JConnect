@@ -1,6 +1,8 @@
 package com.jabber.jconnect;
 
 
+import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -16,6 +18,8 @@ public class XmppData {
     Map<String, String> mucMessagesList = new HashMap<>();
 
     private String messageToSend;
+
+    List<BookmarkedConference> bookmarkedConferenceList = new ArrayList<>();
 
     public static XmppData getInstance() {
         return xmppData;
@@ -76,5 +80,13 @@ public class XmppData {
 
     public void setMucList(List<String> mucList) {
         this.mucList = mucList;
+    }
+
+    public List<BookmarkedConference> getBookmarkedConferenceList() {
+        return bookmarkedConferenceList;
+    }
+
+    public void setBookmarkedConferenceList(List<BookmarkedConference> bookmarkedConferenceList) {
+        this.bookmarkedConferenceList = bookmarkedConferenceList;
     }
 }

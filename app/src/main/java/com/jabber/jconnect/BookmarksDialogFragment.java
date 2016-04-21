@@ -2,7 +2,6 @@ package com.jabber.jconnect;
 
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
@@ -12,61 +11,25 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import java.util.ArrayList;
+import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+
 import java.util.List;
 
 public class BookmarksDialogFragment  extends DialogFragment {
 
-    List<String> items;
+    List<BookmarkedConference> items;
 
     // Use this instance of the interface to deliver action events
     NoticeBookmarksDialogListener mListener;
 
+    XmppData xmppData = XmppData.getInstance();
+
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        //final String[] items = new String[]{"первый", "второй", "третий", "четвертый", "пятый", "шестой", "седьмой"};
-        items = new ArrayList<>();
-        items.add("первый");
-        items.add("второй");
-        items.add("третий");
-        items.add("четвертый");
-        items.add("пятый");
-        items.add("шестой");
-        items.add("седьмой");
-        items.add("1616516");
-        items.add("22222222");
-        items.add("3333333");
-        items.add("44444444");
-        items.add("55555");
-        items.add("66666666");
-        items.add("7777777");
-        items.add("888888");
-        items.add("9999999");
-        items.add("10101010101010");
-        items.add("1101110110001111");
-        items.add("121212121212121212");
-        items.add("131313131313311313");
-        items.add("1414141414");
-        items.add("1515151515");
-        items.add("1616161616");
-        items.add("1717171771");
-        items.add("1818181818");
-        items.add("1919191919");
-        items.add("202020202020");
-        items.add("212121212121");
-        items.add("220220220220220");
-        items.add("232323232323");
-        items.add("242424242424");
-        items.add("252525252525");
-        items.add("2626226262626");
-        items.add("272727272727");
-        items.add("28282828282828");
+        items = xmppData.getBookmarkedConferenceList();
 
         View v = getActivity().getLayoutInflater().inflate(R.layout.fragment_dialog_bookmarks, null);
 
@@ -119,7 +82,7 @@ public class BookmarksDialogFragment  extends DialogFragment {
         public class BookmarkViewHolder extends RecyclerView.ViewHolder {
             public final View mView;
             public final TextView bookmarkId;
-            public String mItem;
+            public BookmarkedConference mItem;
 
             BookmarkViewHolder(View itemView) {
                 super(itemView);
@@ -128,11 +91,11 @@ public class BookmarksDialogFragment  extends DialogFragment {
             }
         }
 
-        List<String> bookmarks;
+        List<BookmarkedConference> bookmarks;
 
         private final BookmarksDialogFragment.NoticeBookmarksDialogListener mListener;
 
-        RVAdapter(List<String> bookmarks, BookmarksDialogFragment.NoticeBookmarksDialogListener listener){
+        RVAdapter(List<BookmarkedConference> bookmarks, BookmarksDialogFragment.NoticeBookmarksDialogListener listener){
             this.bookmarks = bookmarks;
             this.mListener = listener;
         }
@@ -153,14 +116,14 @@ public class BookmarksDialogFragment  extends DialogFragment {
         @Override
         public void onBindViewHolder(final BookmarkViewHolder bookmarkViewHolder, int position) {
             bookmarkViewHolder.mItem = bookmarks.get(position);
-            bookmarkViewHolder.bookmarkId.setText(bookmarks.get(position));
+            bookmarkViewHolder.bookmarkId.setText(bookmarks.get(position).getJid());
             bookmarkViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (null != mListener) {
                         // Notify the active callbacks interface (the activity, if the
                         // fragment is attached to one) that an item has been selected.
-                        mListener.onBookmarksDialogInteraction(bookmarkViewHolder.mItem);
+                        mListener.onBookmarksDialogInteraction(bookmarkViewHolder.mItem.getJid());
                     }
                 }
             });

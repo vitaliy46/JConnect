@@ -101,6 +101,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 }
             }
 
+            if("loaded".equals(bundle.getString("bookmarks"))){
+                MainActivity.this.showBookmarks();
+            }
+
             if(bundle.getString("roster") != null) {
                 String str = bundle.getString("roster");
                 List<Contact> contacts = new ArrayList<>();
@@ -442,8 +446,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 leaveMuc();
                 break;
             case R.id.menu_bookmarks_muc:
-                bookmarksDialogFragment = new BookmarksDialogFragment();
-                bookmarksDialogFragment.show(fm, "bookmarks_dialog_fragment");
+                sendRequestMessage("bookmarks_request");
                 break;
             default:
                 break;
@@ -487,7 +490,12 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
     public void leaveMuc() {
         if (mBound) {
-            sendRequestMessage("leave_muc");
+            //sendRequestMessage("leave_muc");
+            if(selectedMucId != null){
+                Bundle b = new Bundle();
+                b.putString("leave_muc", selectedMucId);
+                sendMessage(b);
+            }
         }
     }
     ///////////////////////////////////////////////////////////////////
@@ -568,7 +576,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     @Override
     public void onBookmarksDialogInteraction(String item) {
         bookmarksDialogFragment.dismiss();
-        Toast.makeText(getApplicationContext(), item, Toast.LENGTH_SHORT).show();
+        //Toast.makeText(getApplicationContext(), item, Toast.LENGTH_SHORT).show();
+        Bundle b = new Bundle();
+        b.putString("join_muc", item);
+        sendMessage(b);
     }
     ///////////////////////////////////////////////////////////////////
 
@@ -584,5 +595,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         } catch (RemoteException e) {
             e.printStackTrace();
         }
+    }
+
+    public void showBookmarks(){
+        bookmarksDialogFragment = new BookmarksDialogFragment();
+        bookmarksDialogFragment.show(fm, "bookmarks_dialog_fragment");
     }
 }

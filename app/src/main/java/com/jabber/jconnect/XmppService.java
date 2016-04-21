@@ -26,6 +26,9 @@ import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
+import org.jivesoftware.smackx.bookmarks.BookmarkManager;
+import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+import org.jivesoftware.smackx.bookmarks.Bookmarks;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.json.JSONException;
@@ -69,6 +72,9 @@ public class XmppService extends Service {
     List<String> mucList = new ArrayList<>();
     Map<String, MultiUserChat> mucMap = new HashMap<>();
 
+    // Закладки
+    Map<String, BookmarkedConference> bookmarkedConferenceMap = new HashMap<>();
+
     // Синглетон для доступа к данным
     XmppData xmppData = XmppData.getInstance();
 
@@ -106,6 +112,9 @@ public class XmppService extends Service {
                     case "leave_muc":
                         XmppService.this.leaveMuc("tty0@conference.jabber.ru");
                         break;
+                    case "bookmarks_request":
+                        XmppService.this.getBookmarkedConference();
+                        break;
                     default:
                         break;
                 }
@@ -117,6 +126,15 @@ public class XmppService extends Service {
 
             if(msgBundle.getString("send_muc") != null){
                 XmppService.this.sendMucMessage(msgBundle.getString("send_muc"), xmppData.getMessageToSend());
+            }
+
+            if(msgBundle.getString("join_muc") != null){
+                XmppService.this.joinToMuc(msgBundle.getString("join_muc"),
+                        bookmarkedConferenceMap.get(msgBundle.getString("join_muc")).getNickname());
+            }
+
+            if(msgBundle.getString("leave_muc") != null){
+                XmppService.this.leaveMuc(msgBundle.getString("leave_muc"));
             }
         }
     }
@@ -542,6 +560,50 @@ public class XmppService extends Service {
                 mucUpdate.setData(bundle);
                 try {
                     replyMessenger.send(mucUpdate);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    // Сохранение закладок (комнат) в синглетон
+    private void getBookmarkedConference(){
+        if(connection != null && connection.isAuthenticated()){
+            BookmarkManager bm = null;
+            try {
+                bm = BookmarkManager.getBookmarkManager(connection);
+            } catch (XMPPException e) {
+                e.printStackTrace();
+            } catch (SmackException e) {
+                e.printStackTrace();
+            }
+
+            List<BookmarkedConference> rooms = null;
+            if(bm != null){
+                try {
+                    rooms = bm.getBookmarkedConferences();
+                } catch (SmackException.NoResponseException e) {
+                    e.printStackTrace();
+                } catch (XMPPException.XMPPErrorException e) {
+                    e.printStackTrace();
+                } catch (SmackException.NotConnectedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            if(rooms != null){
+                for(BookmarkedConference bookmarkedConference:rooms){
+                    bookmarkedConferenceMap.put(bookmarkedConference.getJid(), bookmarkedConference);
+                }
+
+                xmppData.setBookmarkedConferenceList(rooms);
+                Bundle bundle = new Bundle();
+                bundle.putString("bookmarks", "loaded");
+                android.os.Message bookmarks = new android.os.Message();
+                bookmarks.setData(bundle);
+                try {
+                    replyMessenger.send(bookmarks);
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
