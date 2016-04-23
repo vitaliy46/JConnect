@@ -8,14 +8,21 @@
     <string name="menu_join_muc">Войти в конференцию</string>
     <string name="menu_leave_muc">Покинуть конференцию</string>
     <string name="menu_bookmarks_muc">Закладки</string>
+    <string name="menu_service_discover">Обзор сервисов</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_chat">Чат</string>
     <string name="title_muc_activity_chat">Комната</string>
+    <string name="title_service_discover_activity">Обзор сервисов</string>
     <string name="chat_message_send">Отправить</string>
     <string name="contact_list_header">Список контактов</string>
     <string name="muc_list_header">Список комнат</string>
 
     <string name="bookmarks_dialog_title">Закладки</string>
+
+    <string name="service_discover_button">Обзор</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

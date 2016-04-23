@@ -12,9 +12,9 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:windowSoftInputMode="stateHidden"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -29,15 +29,21 @@
 
         <activity
             android:name=".ChatActivity"
-            android:windowSoftInputMode="stateHidden"
             android:label="@string/title_activity_chat"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
 
         <activity
             android:name=".MucChatActivity"
-            android:windowSoftInputMode="stateHidden"
             android:label="@string/title_muc_activity_chat"
-            android:theme="@style/AppTheme.NoActionBar" />
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+
+        <activity android:name=".ServiceDiscoveryActivity"
+            android:label="@string/title_service_discover_activity"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+
     </application>
 
 </manifest>

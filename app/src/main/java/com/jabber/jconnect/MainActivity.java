@@ -448,6 +448,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             case R.id.menu_bookmarks_muc:
                 sendRequestMessage("bookmarks_request");
                 break;
+            case R.id.menu_service_discover:
+                startActivity(new Intent(this, ServiceDiscoveryActivity.class));
+                break;
             default:
                 break;
         }

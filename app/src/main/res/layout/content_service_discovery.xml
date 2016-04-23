@@ -9,13 +9,13 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    tools:context="com.jabber.jconnect.ChatActivity"
-    tools:showIn="@layout/activity_chat">
+    tools:context="com.jabber.jconnect.ServiceDiscoveryActivity"
+    tools:showIn="@layout/activity_service_discovery">
 
     <FrameLayout
         android:id="@+id/fragmentContainer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-    />
+        />
 
 </RelativeLayout>

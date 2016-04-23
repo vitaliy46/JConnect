@@ -2,6 +2,7 @@ package com.jabber.jconnect;
 
 
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+import org.jivesoftware.smackx.disco.packet.DiscoverItems;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -20,6 +21,8 @@ public class XmppData {
     private String messageToSend;
 
     List<BookmarkedConference> bookmarkedConferenceList = new ArrayList<>();
+
+    List<DiscoverItems.Item> serviceDiscoverItems = new ArrayList<>();
 
     public static XmppData getInstance() {
         return xmppData;
@@ -88,5 +91,13 @@ public class XmppData {
 
     public void setBookmarkedConferenceList(List<BookmarkedConference> bookmarkedConferenceList) {
         this.bookmarkedConferenceList = bookmarkedConferenceList;
+    }
+
+    public List<DiscoverItems.Item> getServiceDiscoverItems() {
+        return serviceDiscoverItems;
+    }
+
+    public void setServiceDiscoverItems(List<DiscoverItems.Item> serviceDiscoverItems) {
+        this.serviceDiscoverItems = serviceDiscoverItems;
     }
 }

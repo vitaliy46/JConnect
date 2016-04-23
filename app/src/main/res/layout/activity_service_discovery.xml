@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.jabber.jconnect.MucChatActivity">
+    tools:context="com.jabber.jconnect.ServiceDiscoveryActivity">
 
     <android.support.design.widget.AppBarLayout
         android:layout_width="match_parent"
@@ -21,6 +21,6 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_chat_muc" />
+    <include layout="@layout/content_service_discovery" />
 
 </android.support.design.widget.CoordinatorLayout>

@@ -47,6 +47,12 @@
         android:title="@string/menu_bookmarks_muc"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/menu_service_discover"
+        android:orderInCategory="0"
+        android:title="@string/menu_service_discover"
+        app:showAsAction="never" />
+
     </group>
 
     <item
