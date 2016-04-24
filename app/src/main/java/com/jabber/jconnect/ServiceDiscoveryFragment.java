@@ -1,14 +1,21 @@
 package com.jabber.jconnect;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
+
+import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+
+import java.util.List;
 
 
 /**
@@ -22,19 +29,21 @@ import android.widget.EditText;
 public class ServiceDiscoveryFragment extends Fragment {
     // TODO: Rename parameter arguments, choose names that match
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    //private static final String ARG_PARAM1 = "param1";
-    //private static final String ARG_PARAM2 = "param2";
     private static final String ARG_PARENT_DEFAULT_ENTITY_ID = "parentDefaultEntityID";
 
     // TODO: Rename and change types of parameters
-    //private String mParam1;
-    //private String mParam2;
     private String parentDefaultEntityID = "";
 
     private OnServiceDiscoverFragmentInteractionListener mListener;
 
     InputMethodManager imm;
     EditText parentDefaultEntityIDText;
+    Button serviceDiscover;
+
+    XmppData xmppData = XmppData.getInstance();
+
+    RVAdapter adapter;
+    List<DiscoverItems.Item> items;
 
     public ServiceDiscoveryFragment() {
         // Required empty public constructor
@@ -49,12 +58,10 @@ public class ServiceDiscoveryFragment extends Fragment {
      * @return A new instance of fragment ServiceDiscoveryFragment.
      */
     // TODO: Rename and change types and number of parameters
-    public static ServiceDiscoveryFragment newInstance() {
+    public static ServiceDiscoveryFragment newInstance(String parentDefaultEntityID) {
         ServiceDiscoveryFragment fragment = new ServiceDiscoveryFragment();
         Bundle args = new Bundle();
-        //args.putString(ARG_PARAM1, param1);
-        //args.putString(ARG_PARAM2, param2);
-        //args.putString(ARG_PARENT_DEFAULT_ENTITY_ID, parentDefaultEntityID);
+        args.putString(ARG_PARENT_DEFAULT_ENTITY_ID, parentDefaultEntityID);
         fragment.setArguments(args);
         return fragment;
     }
@@ -63,7 +70,7 @@ public class ServiceDiscoveryFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            //parentDefaultEntityID = getArguments().getString(ARG_PARENT_DEFAULT_ENTITY_ID);
+            parentDefaultEntityID = getArguments().getString(ARG_PARENT_DEFAULT_ENTITY_ID);
         }
     }
 
@@ -84,14 +91,28 @@ public class ServiceDiscoveryFragment extends Fragment {
             }
         });
 
-        return v;
-    }
+        serviceDiscover = (Button) v.findViewById(R.id.service_discover_button);
+        serviceDiscover.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (mListener != null) {
+                    mListener.onServiceDiscoverRequest(parentDefaultEntityIDText.getText().toString());
+                }
+            }
+        });
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onServiceDiscoverInteraction(uri);
-        }
+        items = xmppData.getServiceDiscoverItems();
+
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.service_discovery_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        adapter = new RVAdapter(items, mListener);
+        recyclerView.setAdapter(adapter);
+        RecyclerView.ItemDecoration itemDecoration = new DividerContactDecoration(getContext(),
+                R.drawable.contact_divider);
+        recyclerView.addItemDecoration(itemDecoration);
+
+        return v;
     }
 
     @Override
@@ -123,7 +144,8 @@ public class ServiceDiscoveryFragment extends Fragment {
      */
     public interface OnServiceDiscoverFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onServiceDiscoverInteraction(Uri uri);
+        void onServiceDiscoverRequest(String parentEntityID);
+        void onServiceDiscoverInteraction(String itemID);
     }
 
     public String getParentDefaultEntityID() {
@@ -138,5 +160,76 @@ public class ServiceDiscoveryFragment extends Fragment {
         this.parentDefaultEntityID = parentDefaultEntityID;
         parentDefaultEntityIDText.setText(parentDefaultEntityID);
         parentDefaultEntityIDText.setSelection(parentDefaultEntityIDText.getText().length());
+    }
+
+    public void updateServiceDiscoverItemsList(List<DiscoverItems.Item> items){
+        adapter.updateValues(items);
+        adapter.notifyDataSetChanged();
+    }
+
+    // Адаптер для списка recyclerView
+    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.DiscoverItemsViewHolder>{
+        public class DiscoverItemsViewHolder extends RecyclerView.ViewHolder {
+            public final View mView;
+            public final TextView mItemView;
+            public DiscoverItems.Item mItem;
+
+            DiscoverItemsViewHolder(View itemView) {
+                super(itemView);
+                mView = itemView;
+                mItemView = (TextView)itemView.findViewById(R.id.service_discovery_item);
+            }
+        }
+
+        List<DiscoverItems.Item> items;
+
+        private final ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener mListener;
+
+        RVAdapter(List<DiscoverItems.Item> items,
+                  ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener listener){
+            this.items = items;
+            this.mListener = listener;
+        }
+
+        public void updateValues(List<DiscoverItems.Item> items){
+            this.items = items;
+        }
+
+        @Override
+        public int getItemCount() {
+            return items.size();
+        }
+
+        @Override
+        public DiscoverItemsViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.fragment_service_discovery_item, parent, false);
+
+            return new DiscoverItemsViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final DiscoverItemsViewHolder discoverItemsViewHolder, int position) {
+            discoverItemsViewHolder.mItem = items.get(position);
+
+            String name = (items.get(position).getName() != null) ? (items.get(position).getName() + " ") : "";
+            String str = name + items.get(position).getEntityID();
+            discoverItemsViewHolder.mItemView.setText(str);
+            discoverItemsViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != mListener) {
+                        // Notify the active callbacks interface (the activity, if the
+                        // fragment is attached to one) that an item has been selected.
+                        mListener.onServiceDiscoverInteraction(discoverItemsViewHolder.mItem.getEntityID());
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
+        }
     }
 }

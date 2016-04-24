@@ -100,4 +100,8 @@ public class XmppData {
     public void setServiceDiscoverItems(List<DiscoverItems.Item> serviceDiscoverItems) {
         this.serviceDiscoverItems = serviceDiscoverItems;
     }
+
+    public void clearServiceDiscoverItems() {
+        this.serviceDiscoverItems = new ArrayList<>();
+    }
 }

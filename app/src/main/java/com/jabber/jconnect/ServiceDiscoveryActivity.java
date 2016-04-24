@@ -4,16 +4,14 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.net.Uri;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.widget.Toast;
 
 public class ServiceDiscoveryActivity extends AppCompatActivity implements
         ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener {
@@ -71,10 +69,14 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
             Bundle bundle = msg.getData();
 
             if(bundle.getString("parent_entity_id") != null){
-                Toast.makeText(getApplicationContext(), bundle.getString("parent_entity_id"),
-                        Toast.LENGTH_SHORT).show();
-                if(serviceDiscoveryFragment != null){
+                if(serviceDiscoveryFragment != null && parentEntityID == null){
                     serviceDiscoveryFragment.setParentDefaultEntityIDView(bundle.getString("parent_entity_id"));
+                }
+            }
+
+            if("loaded".equals(bundle.getString("service_discover_items"))){
+                if(serviceDiscoveryFragment != null){
+                    serviceDiscoveryFragment.updateServiceDiscoverItemsList(xmppData.getServiceDiscoverItems());
                 }
             }
         }
@@ -96,15 +98,24 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        if(savedInstanceState != null) {
+            // Восстановление значений сохраненных в savedInstanceState
+            parentEntityID = savedInstanceState.getString("parent_entity_id");
+        }
+
         fm = getSupportFragmentManager();
         serviceDiscoveryFragment = (ServiceDiscoveryFragment) fm.findFragmentById(R.id.fragmentContainer);
         if (serviceDiscoveryFragment == null) {
-            serviceDiscoveryFragment = ServiceDiscoveryFragment.newInstance();
+            serviceDiscoveryFragment = ServiceDiscoveryFragment.newInstance(parentEntityID);
             fm.beginTransaction().add(R.id.fragmentContainer, serviceDiscoveryFragment).commit();
-        } else {
-            //serviceDiscoveryFragment.setMucId(mucId);
-            //serviceDiscoveryFragment.setSendMsg(sendMsg);
         }
+    }
+
+    // Сохранение параметров для восстановления активности
+    @Override
+    protected void onSaveInstanceState(Bundle state) {
+        super.onSaveInstanceState(state);
+        state.putString("parent_entity_id", parentEntityID);
     }
 
     @Override
@@ -124,7 +135,30 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
     }
 
     @Override
-    public void onServiceDiscoverInteraction(Uri uri) {
-        //
+    public void onBackPressed() {
+        super.onBackPressed();
+
+        xmppData.clearServiceDiscoverItems();
+    }
+
+    @Override
+    public void onServiceDiscoverRequest(String parentEntityID) {
+        this.parentEntityID = parentEntityID;
+
+        Bundle bundle = new Bundle();
+        bundle.putString("service_discover_request", parentEntityID);
+        sendMessage(bundle);
+    }
+
+    @Override
+    public void onServiceDiscoverInteraction(String itemID) {
+        this.parentEntityID = itemID;
+        serviceDiscoveryFragment.setParentDefaultEntityIDView(itemID);
+        xmppData.clearServiceDiscoverItems();
+        serviceDiscoveryFragment.updateServiceDiscoverItemsList(xmppData.getServiceDiscoverItems());
+
+        Bundle bundle = new Bundle();
+        bundle.putString("service_discover_request", parentEntityID);
+        sendMessage(bundle);
     }
 }

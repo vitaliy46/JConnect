@@ -10,8 +10,6 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
-import android.widget.Toast;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.MessageListener;
@@ -21,7 +19,6 @@ import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
-import org.jivesoftware.smack.packet.ExtensionElement;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
@@ -29,10 +26,7 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.bookmarks.BookmarkManager;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
-import org.jivesoftware.smackx.bookmarks.Bookmarks;
-import org.jivesoftware.smackx.disco.NodeInformationProvider;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
-import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
@@ -45,10 +39,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -151,6 +143,10 @@ public class XmppService extends Service {
 
             if(msgBundle.getString("leave_muc") != null){
                 XmppService.this.leaveMuc(msgBundle.getString("leave_muc"));
+            }
+
+            if(msgBundle.getString("service_discover_request") != null){
+                XmppService.this.getServiceDiscoverItems(msgBundle.getString("service_discover_request"));
             }
         }
     }
@@ -372,52 +368,6 @@ public class XmppService extends Service {
                 XmppService.this.sendContactsToActivity();
 
                 serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
-
-                /*List features = serviceDiscoveryManager.getFeatures();
-                for(Object feature:features){
-                    Log.i("feature", (String) feature);
-                }*/
-
-                DiscoverItems discoverItems = null;
-                try {
-                    discoverItems = serviceDiscoveryManager.discoverItems("jabber.ru");
-                } catch (SmackException.NoResponseException e) {
-                    e.printStackTrace();
-                } catch (XMPPException.XMPPErrorException e) {
-                    e.printStackTrace();
-                } catch (SmackException.NotConnectedException e) {
-                    e.printStackTrace();
-                }
-
-                if(discoverItems != null){
-                    List<DiscoverItems.Item> items = discoverItems.getItems();
-                    for(Object item:items){
-                        String name = (((DiscoverItems.Item) item).getName() != null) ?
-                                ((DiscoverItems.Item) item).getName() : "";
-                        Log.i("Name", name);
-
-                        String entityID = (((DiscoverItems.Item) item).getEntityID() != null) ?
-                                ((DiscoverItems.Item) item).getEntityID() : "";
-                        Log.i("EntityID", entityID);
-                    }
-                }
-
-                /*Set<DiscoverInfo.Identity> identities = serviceDiscoveryManager.getIdentities();
-                if(identities != null){
-                    for(DiscoverInfo.Identity identity:identities){
-                        String name = (identity.getName() != null) ? identity.getName() : "";
-                        Log.i("Name", name);
-
-                        String category = (identity.getCategory() != null) ? identity.getCategory() : "";
-                        Log.i("Category", category);
-
-                        String language = (identity.getLanguage() != null) ? identity.getLanguage() : "";
-                        Log.i("Language", language);
-
-                        String type = (identity.getType() != null) ? identity.getType() : "";
-                        Log.i("Type", type);
-                    }
-                }*/
             }
         }
 
@@ -425,31 +375,6 @@ public class XmppService extends Service {
         public void disconnect(){
             if(connection != null && connection.isConnected()) connection.disconnect();
         }
-    }
-
-    private void sendTextMessage(String text){
-        android.os.Message m = new android.os.Message();
-        Bundle b = new Bundle();
-        b.putString("text", text);
-        m.setData(b);
-
-        try {
-            replyMessenger.send(m);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public String getConnectionStatus(){
-        if((connection != null) && connection.isConnected()) return "Подключен";
-
-        return "Разъединен";
-    }
-
-    public String isAuthenticated(){
-        if((connection != null) && connection.isAuthenticated()) return "Авторизован";
-
-        return "Отключен";
     }
 
     private void setContactList(){
@@ -702,6 +627,10 @@ public class XmppService extends Service {
 
             if(discoverItems != null){
                 xmppData.setServiceDiscoverItems(discoverItems.getItems());
+
+                Bundle bundle = new Bundle();
+                bundle.putString("service_discover_items", "loaded");
+                sendMessage(bundle);
             }
         }
     }

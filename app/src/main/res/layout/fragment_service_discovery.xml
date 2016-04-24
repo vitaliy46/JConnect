@@ -14,7 +14,7 @@
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content">
 
             <EditText
                 android:layout_width="0dp"
@@ -32,6 +32,13 @@
                 android:text="@string/service_discover_button"
                 android:id="@+id/service_discover_button" />
         </LinearLayout>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.8dp"
+            android:background="@drawable/separator" />
+
+        <include layout="@layout/fragment_service_discovery_list" />
 
     </LinearLayout>
 
