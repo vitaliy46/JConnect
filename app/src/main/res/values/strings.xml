@@ -10,6 +10,9 @@
     <string name="menu_bookmarks_muc">Закладки</string>
     <string name="menu_service_discover">Обзор сервисов</string>
 
+    <!-- Service discover menu -->
+    <string name="menu_service_discover_join_muc">Войти в комнату</string>
+
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_chat">Чат</string>
     <string name="title_muc_activity_chat">Комната</string>

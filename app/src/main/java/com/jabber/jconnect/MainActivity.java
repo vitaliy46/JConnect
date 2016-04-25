@@ -579,9 +579,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     @Override
     public void onBookmarksDialogInteraction(String item) {
         bookmarksDialogFragment.dismiss();
-        //Toast.makeText(getApplicationContext(), item, Toast.LENGTH_SHORT).show();
+
         Bundle b = new Bundle();
-        b.putString("join_muc", item);
+        b.putString("join_muc_from_bookmarks", item);
         sendMessage(b);
     }
     ///////////////////////////////////////////////////////////////////

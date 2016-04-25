@@ -12,6 +12,13 @@ import android.os.RemoteException;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.Toast;
+
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class ServiceDiscoveryActivity extends AppCompatActivity implements
         ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener {
@@ -91,6 +98,10 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
     FragmentManager fm;
     ServiceDiscoveryFragment serviceDiscoveryFragment;
 
+    MenuItem joinMucMenuItem;
+    String mucEntity;
+    Pattern pMucEntity = Pattern.compile("(\\S+)@(conference)(\\.)(\\S+\\.)(\\w+)");
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,8 +153,46 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_service_discover, menu);
+        joinMucMenuItem = menu.findItem(R.id.menu_service_discover_join_muc);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch (id){
+            case R.id.menu_service_discover_join_muc:
+                //Toast.makeText(getApplicationContext(), "вход в комнату", Toast.LENGTH_SHORT).show();
+                Bundle b = new Bundle();
+                b.putString("join_muc_from_service_discover", mucEntity);
+                sendMessage(b);
+                break;
+            default:
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public void onServiceDiscoverRequest(String parentEntityID) {
         this.parentEntityID = parentEntityID;
+
+        Matcher m = pMucEntity.matcher(parentEntityID);
+        if(m.find()){
+            mucEntity = m.group();
+            joinMucMenuItem.setVisible(true);
+        } else {
+            joinMucMenuItem.setVisible(false);
+        }
 
         Bundle bundle = new Bundle();
         bundle.putString("service_discover_request", parentEntityID);
@@ -156,6 +205,14 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         serviceDiscoveryFragment.setParentDefaultEntityIDView(itemID);
         xmppData.clearServiceDiscoverItems();
         serviceDiscoveryFragment.updateServiceDiscoverItemsList(xmppData.getServiceDiscoverItems());
+
+        Matcher m = pMucEntity.matcher(itemID);
+        if(m.find()){
+            mucEntity = m.group();
+            joinMucMenuItem.setVisible(true);
+        } else {
+            joinMucMenuItem.setVisible(false);
+        }
 
         Bundle bundle = new Bundle();
         bundle.putString("service_discover_request", parentEntityID);

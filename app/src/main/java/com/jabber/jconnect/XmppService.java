@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.MessageListener;
@@ -93,6 +94,10 @@ public class XmppService extends Service {
                 replyMessenger = msg.replyTo;
                 if("main".equals(msgBundle.getString("activity"))) {
                     XmppService.this.sendContactsToActivity();
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("muc_list_update", "resume");
+                    XmppService.this.sendMessage(bundle);
                 }
 
                 if("service_discover".equals(msgBundle.getString("activity"))) {
@@ -136,9 +141,13 @@ public class XmppService extends Service {
                 XmppService.this.sendMucMessage(msgBundle.getString("send_muc"), xmppData.getMessageToSend());
             }
 
-            if(msgBundle.getString("join_muc") != null){
-                XmppService.this.joinToMuc(msgBundle.getString("join_muc"),
-                        bookmarkedConferenceMap.get(msgBundle.getString("join_muc")).getNickname());
+            if(msgBundle.getString("join_muc_from_bookmarks") != null){
+                XmppService.this.joinToMuc(msgBundle.getString("join_muc_from_bookmarks"),
+                        bookmarkedConferenceMap.get(msgBundle.getString("join_muc_from_bookmarks")).getNickname());
+            }
+
+            if(msgBundle.getString("join_muc_from_service_discover") != null){
+                XmppService.this.joinToMuc(msgBundle.getString("join_muc_from_service_discover"), "SystemV");
             }
 
             if(msgBundle.getString("leave_muc") != null){
@@ -514,6 +523,8 @@ public class XmppService extends Service {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
+
+                Log.i("joined", mucId);
             }
         }
     }
