@@ -293,31 +293,31 @@ public class XmppService extends Service {
 
             // Конфигурирование соединения
             /*XMPPTCPConnectionConfiguration configBuilder = XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword("vitaliy46", ";tkfnby2+")
-                .setResource("jabber.ru")
-                .setServiceName("jabber.ru")
+                .setUsernameAndPassword("", "")
+                .setResource("")
+                .setServiceName("")
                 .setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible)
                 .setCustomSSLContext(sc)
                 .build();*/
 
             XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-            configBuilder.setUsernameAndPassword("vitaliy446", ";tkfnby1");
-            configBuilder.setResource("jabber.ru");
-            configBuilder.setServiceName("jabber.ru");
+            configBuilder.setUsernameAndPassword("", "");
+            configBuilder.setResource("");
+            configBuilder.setServiceName("");
             configBuilder.setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible);
             configBuilder.setCustomSSLContext(sc);
 
             /*XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-            configBuilder.setUsernameAndPassword("vitaliy46_2", "top02bg");
-            configBuilder.setResource("jabber.org.by");
-            configBuilder.setServiceName("jabber.org.by");
+            configBuilder.setUsernameAndPassword("", "");
+            configBuilder.setResource("");
+            configBuilder.setServiceName("");
             configBuilder.setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible);
             configBuilder.setCustomSSLContext(sc);*/
 
             /*XMPPTCPConnectionConfiguration configBuilder = XMPPTCPConnectionConfiguration.builder()
-                    .setUsernameAndPassword("vitaliy55", "sshti8")
-                    .setResource("qip.ru")
-                    .setServiceName("qip.ru")
+                    .setUsernameAndPassword("", "")
+                    .setResource("")
+                    .setServiceName("")
                     .setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible)
                     .setCustomSSLContext(sc)
                     .build();*/
