@@ -13,6 +13,16 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
+import org.jivesoftware.smack.PresenceListener;
+import org.jivesoftware.smack.StanzaListener;
+import org.jivesoftware.smack.XMPPConnection;
+import org.jivesoftware.smack.filter.StanzaFilter;
+import org.jivesoftware.smack.iqrequest.IQRequestHandler;
+import org.jivesoftware.smack.packet.ExtensionElement;
+import org.jivesoftware.smack.packet.IQ;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
+import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.MessageListener;
 import org.jivesoftware.smack.SmackException;
 import org.jivesoftware.smack.XMPPException;
@@ -27,10 +37,21 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.bookmarks.BookmarkManager;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+import org.jivesoftware.smackx.disco.NodeInformationProvider;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
+import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.muc.InvitationListener;
+import org.jivesoftware.smackx.muc.InvitationRejectionListener;
+import org.jivesoftware.smackx.muc.MUCNotJoinedException;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.muc.ParticipantStatusListener;
+import org.jivesoftware.smackx.muc.RoomInfo;
+import org.jivesoftware.smackx.pep.packet.PEPEvent;
+import org.jivesoftware.smackx.pep.packet.PEPItem;
+import org.jivesoftware.smackx.xdata.Form;
+import org.jivesoftware.smackx.xdata.packet.DataForm;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -266,6 +287,9 @@ public class XmppService extends Service {
                 e.printStackTrace();
             }
 
+            //ProviderManager.addExtensionProvider("captcha", "urn:xmpp:captcha", new CaptchaExtension.Provider());
+            //ProviderManager.addExtensionProvider("data", "urn:xmpp:bob", new BobExtension.Provider());
+            //CaptchaExtension
 
             // Конфигурирование соединения
             /*XMPPTCPConnectionConfiguration configBuilder = XMPPTCPConnectionConfiguration.builder()
@@ -300,6 +324,8 @@ public class XmppService extends Service {
 
             connection = new XMPPTCPConnection(configBuilder.build());
             //connection = new XMPPTCPConnection(configBuilder);
+
+            connection.setPacketReplyTimeout(10000);
 
             // Соединение с jabber сервером
             try {
@@ -376,7 +402,36 @@ public class XmppService extends Service {
                 XmppService.this.setContactList();
                 XmppService.this.sendContactsToActivity();
 
+                // Менеджер конференций
+                manager = MultiUserChatManager.getInstanceFor(connection);
+                // Менеджер сервисов
                 serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
+
+                /*StanzaListener stanzaListener = new StanzaListener() {
+                    @Override
+                    public void processPacket(Stanza stanza) throws SmackException.NotConnectedException {
+                        Log.i("stanza", stanza.toXML().toString());
+                    }
+                };
+                StanzaFilter stanzaFilter = new StanzaFilter() {
+                    @Override
+                    public boolean accept(Stanza stanza) {
+                        return true;
+                    }
+                };
+                connection.addPacketInterceptor(stanzaListener, stanzaFilter);*/
+
+                /*manager.addInvitationListener(new InvitationListener() {
+                    @Override
+                    public void invitationReceived(XMPPConnection xmppConnection, MultiUserChat multiUserChat,
+                                                   String s, String s1, String s2, Message message) {
+                        Log.i("message", message.toXML().toString());
+                        Log.i("getExtensions", message.getExtensions().toString());
+                        Log.i("s", s);
+                        Log.i("s1", s1);
+                        Log.i("s2", s2);
+                    }
+                });*/
             }
         }
 
@@ -468,9 +523,110 @@ public class XmppService extends Service {
     private void joinToMuc(final String mucId, String nick){
         if(connection != null && connection.isAuthenticated()){
             // Соединение с комнатой
-            manager = MultiUserChatManager.getInstanceFor(connection);
-
             MultiUserChat muc = manager.getMultiUserChat(mucId);
+
+            //connection.addPacketInterceptor();
+            /*muc.addPresenceInterceptor(new PresenceListener() {
+                @Override
+                public void processPresence(Presence presence) {
+                    Log.i("presence", presence.getExtensions().toString());
+                }
+            });*/
+
+            /*RoomInfo info = null;
+            try {
+                info = manager.getRoomInfo(mucId);
+            } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (XMPPException.XMPPErrorException e) {
+                e.printStackTrace();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
+            if(info != null){
+                if(info.isMembersOnly()) Log.i("MembersOnly", "true");
+                if(info.isPasswordProtected()) Log.i("PasswordProtected", "true");
+                //if(info.getForm() != null) Log.i("Form", info.getForm().toString());
+                //if(info.getPubSub() != null) Log.i("info", info.getPubSub());
+
+                if(info.getForm() != null){
+                    Form form = info.getForm();
+                    DataForm dataForm = form.getDataFormToSend();
+                    Log.i("DataForm", dataForm.toXML().toString());
+                }
+            }*/
+
+            /*Form regForm = null;
+            try {
+                regForm = muc.getRegistrationForm();
+            } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (XMPPException.XMPPErrorException e) {
+                e.printStackTrace();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
+            if(regForm != null){
+                Log.i("getTitle", regForm.getTitle());
+                Log.i("getInstructions", regForm.getInstructions());
+            }*/
+
+            /*DiscoverInfo discoInfo = null;
+            try {
+                discoInfo = serviceDiscoveryManager.discoverInfo(mucId);
+            } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (XMPPException.XMPPErrorException e) {
+                e.printStackTrace();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
+            if(discoInfo != null){
+                Log.i("discoInfo", discoInfo.getExtensions().toString());
+                Log.i("discoInfo", discoInfo.toXML().toString());
+                List<ExtensionElement> extensionElements = discoInfo.getExtensions();
+                for(ExtensionElement extensionElement:extensionElements){
+                    Log.i("ExtensionElement", extensionElement.toXML().toString());
+                }
+            }*/
+
+            //DataForm dataForm = serviceDiscoveryManager.getExtendedInfo();
+
+            // Прием сообщений об изменении статуса
+            muc.addParticipantListener(new PresenceListener() {
+                @Override
+                public void processPresence(Presence presence) {
+                    Log.i("muc", presence.toXML().toString());
+                }
+            });
+
+            // Запрос Captcha
+            Stanza stanza = new Stanza() {
+                @Override
+                public CharSequence toXML() {
+                    return "request";
+                }
+            };
+            StanzaFilter stanzaFilter = new StanzaFilter() {
+                @Override
+                public boolean accept(Stanza stanza) {
+                    return true;
+                }
+            };
+            StanzaListener stanzaListener = new StanzaListener() {
+                @Override
+                public void processPacket(Stanza stanza) throws SmackException.NotConnectedException {
+                    //Log.i("muc", stanza.toXML().toString());
+                    //ExtensionElement extensionElement = stanza.getExtension("captcha", "urn:xmpp:captcha");
+                    Message message = (Message) stanza;
+                    Log.i("muc", message.getBody());
+                }
+            };
+            try {
+                connection.sendStanzaWithResponseCallback(stanza, stanzaFilter, stanzaListener);
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
 
             try {
                 // Вход в комнату
@@ -489,7 +645,15 @@ public class XmppService extends Service {
                     @Override
                     public void processMessage(Message message) {
                         String[] msgFrom = message.getFrom().split("/");
-                        xmppData.setMucMessagesList(mucId, msgFrom[1], message.getBody());
+                        if(msgFrom.length > 1){
+                            xmppData.setMucMessagesList(mucId, msgFrom[1], message.getBody());
+                        } else {
+                            xmppData.setMucMessagesList(mucId, "", message.getBody());
+                            Log.i("joined_message", message.toXML().toString());
+                        }
+
+
+                        //message.getExtensions();
 
                         android.os.Message mucChatMsg = new android.os.Message();
 
@@ -523,8 +687,6 @@ public class XmppService extends Service {
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
-
-                Log.i("joined", mucId);
             }
         }
     }
