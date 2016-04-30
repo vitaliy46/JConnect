@@ -4,9 +4,12 @@ package com.jabber.jconnect;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 public class XmppData {
@@ -57,7 +60,15 @@ public class XmppData {
             messages = "";
         }
 
-        messages += nick + ": " + message + "\n";
+        Date date = new java.util.Date();
+        String time = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()).format(date);
+
+        if(nick != null){
+            messages += "[" + time + "] " + nick + ": " + message + "\n";
+        } else {
+            messages += "[" + time + "] " + message + "\n";
+        }
+
         mucMessagesList.put(mucId, messages);
     }
 

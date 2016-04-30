@@ -61,7 +61,8 @@
                     android:paddingLeft="3dp"
                     android:paddingRight="3dp"
                     android:paddingBottom="3dp"
-                    android:clickable="true" />
+                    android:clickable="true"
+                    android:autoLink="web" />
 
             </ScrollView>
 

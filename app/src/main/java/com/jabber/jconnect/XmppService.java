@@ -520,85 +520,18 @@ public class XmppService extends Service {
     }
 
     // Вход в конференцию
-    private void joinToMuc(final String mucId, String nick){
+    private void joinToMuc(final String mucId, final String nick){
         if(connection != null && connection.isAuthenticated()){
             // Соединение с комнатой
-            MultiUserChat muc = manager.getMultiUserChat(mucId);
-
-            //connection.addPacketInterceptor();
-            /*muc.addPresenceInterceptor(new PresenceListener() {
-                @Override
-                public void processPresence(Presence presence) {
-                    Log.i("presence", presence.getExtensions().toString());
-                }
-            });*/
-
-            /*RoomInfo info = null;
-            try {
-                info = manager.getRoomInfo(mucId);
-            } catch (SmackException.NoResponseException e) {
-                e.printStackTrace();
-            } catch (XMPPException.XMPPErrorException e) {
-                e.printStackTrace();
-            } catch (SmackException.NotConnectedException e) {
-                e.printStackTrace();
-            }
-            if(info != null){
-                if(info.isMembersOnly()) Log.i("MembersOnly", "true");
-                if(info.isPasswordProtected()) Log.i("PasswordProtected", "true");
-                //if(info.getForm() != null) Log.i("Form", info.getForm().toString());
-                //if(info.getPubSub() != null) Log.i("info", info.getPubSub());
-
-                if(info.getForm() != null){
-                    Form form = info.getForm();
-                    DataForm dataForm = form.getDataFormToSend();
-                    Log.i("DataForm", dataForm.toXML().toString());
-                }
-            }*/
-
-            /*Form regForm = null;
-            try {
-                regForm = muc.getRegistrationForm();
-            } catch (SmackException.NoResponseException e) {
-                e.printStackTrace();
-            } catch (XMPPException.XMPPErrorException e) {
-                e.printStackTrace();
-            } catch (SmackException.NotConnectedException e) {
-                e.printStackTrace();
-            }
-            if(regForm != null){
-                Log.i("getTitle", regForm.getTitle());
-                Log.i("getInstructions", regForm.getInstructions());
-            }*/
-
-            /*DiscoverInfo discoInfo = null;
-            try {
-                discoInfo = serviceDiscoveryManager.discoverInfo(mucId);
-            } catch (SmackException.NoResponseException e) {
-                e.printStackTrace();
-            } catch (XMPPException.XMPPErrorException e) {
-                e.printStackTrace();
-            } catch (SmackException.NotConnectedException e) {
-                e.printStackTrace();
-            }
-            if(discoInfo != null){
-                Log.i("discoInfo", discoInfo.getExtensions().toString());
-                Log.i("discoInfo", discoInfo.toXML().toString());
-                List<ExtensionElement> extensionElements = discoInfo.getExtensions();
-                for(ExtensionElement extensionElement:extensionElements){
-                    Log.i("ExtensionElement", extensionElement.toXML().toString());
-                }
-            }*/
-
-            //DataForm dataForm = serviceDiscoveryManager.getExtendedInfo();
+            final MultiUserChat muc = manager.getMultiUserChat(mucId);
 
             // Прием сообщений об изменении статуса
-            muc.addParticipantListener(new PresenceListener() {
+            /*muc.addParticipantListener(new PresenceListener() {
                 @Override
                 public void processPresence(Presence presence) {
                     Log.i("muc", presence.toXML().toString());
                 }
-            });
+            });*/
 
             // Запрос Captcha
             Stanza stanza = new Stanza() {
@@ -616,10 +549,18 @@ public class XmppService extends Service {
             StanzaListener stanzaListener = new StanzaListener() {
                 @Override
                 public void processPacket(Stanza stanza) throws SmackException.NotConnectedException {
-                    Log.i("muc", stanza.toXML().toString());
+                    //Log.i("muc", stanza.toXML().toString());
                     //ExtensionElement extensionElement = stanza.getExtension("captcha", "urn:xmpp:captcha");
-                    //Message message = (Message) stanza;
-                    //Log.i("muc", message.getBody());
+                    Message message = (Message) stanza;
+                    if(message.getExtension("captcha", "urn:xmpp:captcha") != null){
+                        Log.i("muc", message.getBody());
+
+                        xmppData.setMucMessagesList(mucId, null, message.getBody());
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("recieve_muc", mucId);
+                        sendMessage(bundle);
+                    }
                 }
             };
             try {
@@ -628,65 +569,67 @@ public class XmppService extends Service {
                 e.printStackTrace();
             }
 
-            try {
-                // Вход в комнату
-                muc.join(nick, null, null, 30000);
-            } catch (SmackException.NoResponseException e) {
-                e.printStackTrace();
-            } catch (XMPPException.XMPPErrorException e) {
-                e.printStackTrace();
-            } catch (SmackException.NotConnectedException e) {
-                e.printStackTrace();
-            }
-
-            if(muc.isJoined()){
-                // Слушатель комнаты
-                muc.addMessageListener(new MessageListener() {
-                    @Override
-                    public void processMessage(Message message) {
-                        String[] msgFrom = message.getFrom().split("/");
-                        if(msgFrom.length > 1){
-                            xmppData.setMucMessagesList(mucId, msgFrom[1], message.getBody());
-                        } else {
-                            xmppData.setMucMessagesList(mucId, "", message.getBody());
-                            Log.i("joined_message", message.toXML().toString());
-                        }
-
-
-                        //message.getExtensions();
-
-                        android.os.Message mucChatMsg = new android.os.Message();
-
-                        Bundle bundle = new Bundle();
-                        bundle.putString("recieve_muc", mucId);
-                        mucChatMsg.setData(bundle);
-
-                        try {
-                            replyMessenger.send(mucChatMsg);
-                        } catch (RemoteException e) {
-                            e.printStackTrace();
-                        }
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        // Вход в комнату
+                        muc.join(nick, null, null, 30000);
+                    } catch (SmackException.NoResponseException e) {
+                        e.printStackTrace();
+                    } catch (XMPPException.XMPPErrorException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NotConnectedException e) {
+                        e.printStackTrace();
                     }
-                });
 
-                // Добавление в список комнат
-                mucList.add(mucId);
-                // Добавление в коллекцию комнат
-                mucMap.put(mucId, muc);
+                    if(muc.isJoined()){
+                        // Слушатель комнаты
+                        muc.addMessageListener(new MessageListener() {
+                            @Override
+                            public void processMessage(Message message) {
+                                String[] msgFrom = message.getFrom().split("/");
+                                if(msgFrom.length > 1){
+                                    xmppData.setMucMessagesList(mucId, msgFrom[1], message.getBody());
+                                } else {
+                                    xmppData.setMucMessagesList(mucId, "Тема", message.getSubject());
+                                    //Log.i("joined_message", message.toXML().toString());
+                                }
 
-                // Обновление списка комнат в синглетоне
-                xmppData.setMucList(mucList);
+                                android.os.Message mucChatMsg = new android.os.Message();
 
-                // Оповещение активности об обновлении списка комнат
-                Bundle bundle = new Bundle();
-                bundle.putString("muc_list_update", "join");
-                android.os.Message mucUpdate = new android.os.Message();
-                mucUpdate.setData(bundle);
-                try {
-                    replyMessenger.send(mucUpdate);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
+                                Bundle bundle = new Bundle();
+                                bundle.putString("recieve_muc", mucId);
+                                mucChatMsg.setData(bundle);
+
+                                try {
+                                    replyMessenger.send(mucChatMsg);
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        });
+                    }
                 }
+            }).start();
+
+            // Добавление в список комнат
+            mucList.add(mucId);
+            // Добавление в коллекцию комнат
+            mucMap.put(mucId, muc);
+
+            // Обновление списка комнат в синглетоне
+            xmppData.setMucList(mucList);
+
+            // Оповещение активности об обновлении списка комнат
+            Bundle bundle = new Bundle();
+            bundle.putString("muc_list_update", "join");
+            android.os.Message mucUpdate = new android.os.Message();
+            mucUpdate.setData(bundle);
+            try {
+                replyMessenger.send(mucUpdate);
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
         }
     }
@@ -718,25 +661,25 @@ public class XmppService extends Service {
                 } catch (SmackException.NotConnectedException e) {
                     e.printStackTrace();
                 }
+            }
 
-                // Удаление комнаты из списка
-                mucList.remove(mucId);
-                // Удаление комнаты из коллекции
-                mucMap.remove(mucId);
+            // Удаление комнаты из списка
+            mucList.remove(mucId);
+            // Удаление комнаты из коллекции
+            mucMap.remove(mucId);
 
-                // Обновление списка комнат в синглетоне
-                xmppData.setMucList(mucList);
+            // Обновление списка комнат в синглетоне
+            xmppData.setMucList(mucList);
 
-                // Оповещение активности об обновлении списка комнат
-                Bundle bundle = new Bundle();
-                bundle.putString("muc_list_update", "leave");
-                android.os.Message mucUpdate = new android.os.Message();
-                mucUpdate.setData(bundle);
-                try {
-                    replyMessenger.send(mucUpdate);
-                } catch (RemoteException e) {
-                    e.printStackTrace();
-                }
+            // Оповещение активности об обновлении списка комнат
+            Bundle bundle = new Bundle();
+            bundle.putString("muc_list_update", "leave");
+            android.os.Message mucUpdate = new android.os.Message();
+            mucUpdate.setData(bundle);
+            try {
+                replyMessenger.send(mucUpdate);
+            } catch (RemoteException e) {
+                e.printStackTrace();
             }
         }
     }
