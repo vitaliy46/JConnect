@@ -301,9 +301,9 @@ public class XmppService extends Service {
                 .build();*/
 
             XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-            configBuilder.setUsernameAndPassword("", "");
-            configBuilder.setResource("");
-            configBuilder.setServiceName("");
+            configBuilder.setUsernameAndPassword("vitaliy446", ";tkfnby1");
+            configBuilder.setResource("jabber.ru");
+            configBuilder.setServiceName("jabber.ru");
             configBuilder.setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible);
             configBuilder.setCustomSSLContext(sc);
 
@@ -616,10 +616,10 @@ public class XmppService extends Service {
             StanzaListener stanzaListener = new StanzaListener() {
                 @Override
                 public void processPacket(Stanza stanza) throws SmackException.NotConnectedException {
-                    //Log.i("muc", stanza.toXML().toString());
+                    Log.i("muc", stanza.toXML().toString());
                     //ExtensionElement extensionElement = stanza.getExtension("captcha", "urn:xmpp:captcha");
-                    Message message = (Message) stanza;
-                    Log.i("muc", message.getBody());
+                    //Message message = (Message) stanza;
+                    //Log.i("muc", message.getBody());
                 }
             };
             try {
@@ -630,7 +630,7 @@ public class XmppService extends Service {
 
             try {
                 // Вход в комнату
-                muc.join(nick);
+                muc.join(nick, null, null, 30000);
             } catch (SmackException.NoResponseException e) {
                 e.printStackTrace();
             } catch (XMPPException.XMPPErrorException e) {
