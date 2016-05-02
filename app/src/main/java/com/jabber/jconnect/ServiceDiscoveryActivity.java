@@ -21,7 +21,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ServiceDiscoveryActivity extends AppCompatActivity implements
-        ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener {
+        ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener, JoinMucDialogFragment.JoinMucDialogListener {
 
     /***********************************************************************************************
      * Реализация связи с сервисом через Messenger
@@ -86,6 +86,24 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
                     serviceDiscoveryFragment.updateServiceDiscoverItemsList(xmppData.getServiceDiscoverItems());
                 }
             }
+
+            if(bundle.getString("recieve_captcha") != null){
+                captchaDialogFragment = CaptchaDialogFragment.newInstance(bundle.getString("recieve_captcha"));
+                captchaDialogFragment.show(fm, "captcha_dialog_fragment");
+            }
+
+            if(bundle.getString("muc_is_password_protected") != null){
+                mucIsPasswordProtected = true;
+            }
+
+            if(bundle.getString("muc_is_members_only") != null){
+                mucIsMembersOnly = true;
+            }
+
+            if(bundle.getString("not_authorized_muc_is_members_only") != null){
+                String membersOnlyMsg = "Комната " + mucEntity + " только для зарегистрированных участников";
+                Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -97,6 +115,12 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
 
     FragmentManager fm;
     ServiceDiscoveryFragment serviceDiscoveryFragment;
+
+    CaptchaDialogFragment captchaDialogFragment;
+
+    JoinMucDialogFragment joinMucDialogFragment;
+    boolean mucIsPasswordProtected = false;
+    boolean mucIsMembersOnly = false;
 
     MenuItem joinMucMenuItem;
     String mucEntity;
@@ -170,16 +194,28 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
 
         switch (id){
             case R.id.menu_service_discover_join_muc:
-                //Toast.makeText(getApplicationContext(), "вход в комнату", Toast.LENGTH_SHORT).show();
-                Bundle b = new Bundle();
-                b.putString("join_muc_from_service_discover", mucEntity);
-                sendMessage(b);
+                if(mucIsMembersOnly){
+                    String membersOnlyMsg = "Комната " + mucEntity + " только для зарегитсрированных участников";
+                    //Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
+                }
+
+                joinMucDialogFragment = JoinMucDialogFragment.newInstance(mucEntity, mucIsPasswordProtected);
+                joinMucDialogFragment.show(fm, "join_muc_dialog_fragment");
+
                 break;
             default:
                 break;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void joinMuc(String mucID, String nick, String password){
+        Bundle b = new Bundle();
+        b.putString("join_muc_from_service_discover", mucID);
+        b.putString("join_muc_from_service_discover_nick", nick);
+        b.putString("join_muc_from_service_discover_password", password);
+        sendMessage(b);
     }
 
     @Override
@@ -189,6 +225,13 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         Matcher m = pMucEntity.matcher(parentEntityID);
         if(m.find()){
             mucEntity = m.group();
+
+            mucIsPasswordProtected = false;
+            mucIsMembersOnly = false;
+            Bundle bundle = new Bundle();
+            bundle.putString("request_muc_protection_info", mucEntity);
+            sendMessage(bundle);
+
             joinMucMenuItem.setVisible(true);
         } else {
             joinMucMenuItem.setVisible(false);
@@ -209,6 +252,13 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         Matcher m = pMucEntity.matcher(itemID);
         if(m.find()){
             mucEntity = m.group();
+
+            mucIsPasswordProtected = false;
+            mucIsMembersOnly = false;
+            Bundle bundle = new Bundle();
+            bundle.putString("request_muc_protection_info", mucEntity);
+            sendMessage(bundle);
+
             joinMucMenuItem.setVisible(true);
         } else {
             joinMucMenuItem.setVisible(false);
@@ -217,5 +267,15 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         Bundle bundle = new Bundle();
         bundle.putString("service_discover_request", parentEntityID);
         sendMessage(bundle);
+    }
+
+    @Override
+    public void onSubmitJoinMucDialogInteraction(String MucID, String nick) {
+        joinMuc(MucID, nick, null);
+    }
+
+    @Override
+    public void onSubmitJoinMucDialogInteraction(String MucID, String nick, String password) {
+        joinMuc(MucID, nick, password);
     }
 }

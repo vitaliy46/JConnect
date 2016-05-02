@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">JConnect</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Main menu -->
     <string name="menu_start_service">Запустить сервис</string>
     <string name="menu_stop_service">Остановить сервис</string>
     <string name="menu_connect">Соединение</string>
@@ -21,11 +23,20 @@
     <string name="contact_list_header">Список контактов</string>
     <string name="muc_list_header">Список комнат</string>
 
-    <string name="bookmarks_dialog_title">Закладки</string>
-
+    <!-- Service discover fragment -->
     <string name="service_discover_button">Обзор</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <!-- Bookmarks dialog fragment -->
+    <string name="bookmarks_dialog_title">Закладки</string>
+
+    <!-- Captcha dialog fragment -->
+    <string name="captcha_dialog_title">Для входа в комнату группы необходимо пройти проверку Captcha:</string>
+    <string name="captcha_dialog_ok">OK</string>
+
+    <!-- Join muc dialog fragment -->
+    <string name="join_muc_dialog_title">Вход в комнату:</string>
+    <string name="join_muc_dialog_nick_title">Ник:</string>
+    <string name="join_muc_dialog_password_title">Пароль:</string>
+    <string name="join_muc_dialog_ok">OK</string>
 
 </resources>

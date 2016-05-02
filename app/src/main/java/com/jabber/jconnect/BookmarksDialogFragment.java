@@ -17,7 +17,7 @@ import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
 
 import java.util.List;
 
-public class BookmarksDialogFragment  extends DialogFragment {
+public class BookmarksDialogFragment extends DialogFragment {
 
     List<BookmarkedConference> items;
 

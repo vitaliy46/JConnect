@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/join_muc_dialog_title"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:background="#464646"
+        android:id="@+id/join_muc_dialog_title" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <EditText
+        android:id="@+id/join_muc_dialog_mucname"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:ems="10"
+        android:padding="3dp"
+        android:focusable="true"
+        android:textSize="18sp"
+        android:textIsSelectable="true"
+        android:textAlignment="gravity"
+        android:scrollbars="vertical"
+        android:gravity="top|left"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="text"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textAlignment="gravity"
+        android:layout_gravity="left"
+        android:textSize="18sp"
+        android:textColor="#000000"
+        android:id="@+id/join_muc_dialog_nick_title"
+        android:text="@string/join_muc_dialog_nick_title" />
+
+    <EditText
+        android:id="@+id/join_muc_dialog_nick"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:ems="10"
+        android:padding="3dp"
+        android:focusable="true"
+        android:textSize="18sp"
+        android:textIsSelectable="true"
+        android:textAlignment="gravity"
+        android:scrollbars="vertical"
+        android:gravity="top|left"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="text"
+        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <Button
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/join_muc_dialog_ok"
+        android:id="@+id/join_muc_dialog_ok" />
+
+</LinearLayout>
