@@ -43,11 +43,15 @@ import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
 import org.jivesoftware.smackx.muc.InvitationListener;
 import org.jivesoftware.smackx.muc.InvitationRejectionListener;
+import org.jivesoftware.smackx.muc.MUCAffiliation;
 import org.jivesoftware.smackx.muc.MUCNotJoinedException;
+import org.jivesoftware.smackx.muc.MUCRole;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
+import org.jivesoftware.smackx.muc.Occupant;
 import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.jivesoftware.smackx.muc.RoomInfo;
+import org.jivesoftware.smackx.muc.packet.MUCUser;
 import org.jivesoftware.smackx.pep.packet.PEPEvent;
 import org.jivesoftware.smackx.pep.packet.PEPItem;
 import org.jivesoftware.smackx.xdata.Form;
@@ -559,14 +563,84 @@ public class XmppService extends Service {
         if(connection != null && connection.isAuthenticated()){
             // Соединение с комнатой
             final MultiUserChat muc = manager.getMultiUserChat(mucId);
+            xmppData.clearMucParticipantList(mucId);
 
             // Прием сообщений об изменении статуса
-            /*muc.addParticipantListener(new PresenceListener() {
+            muc.addParticipantListener(new PresenceListener() {
                 @Override
                 public void processPresence(Presence presence) {
-                    Log.i("muc", presence.toXML().toString());
+                    //Log.i("participant_listener", presence.toXML().toString());
+
+                    String[] from = presence.getFrom().split("/");
+                    Log.i("from", from[1]);
+                    MucParticipant mucParticipant = new MucParticipant(from[1]);
+
+                    XmlPullParserFactory factory = null;
+                    try {
+                        factory = XmlPullParserFactory.newInstance();
+                    } catch (XmlPullParserException e) {
+                        e.printStackTrace();
+                    }
+                    if(factory != null){
+                        factory.setNamespaceAware(true);
+
+                        XmlPullParser xpp = null;
+                        try {
+                            xpp = factory.newPullParser();
+                        } catch (XmlPullParserException e) {
+                            e.printStackTrace();
+                        }
+                        if(xpp != null){
+                            try {
+                                xpp.setInput(new StringReader(presence.toXML().toString()));
+                            } catch (XmlPullParserException e) {
+                                e.printStackTrace();
+                            }
+
+                            int eventType = 0;
+                            try {
+                                eventType = xpp.getEventType();
+                            } catch (XmlPullParserException e) {
+                                e.printStackTrace();
+                            }
+                            boolean extentionFound = false;
+                            while (eventType != XmlPullParser.END_DOCUMENT) {
+                                if(eventType ==  XmlPullParser.START_TAG &&
+                                        xpp.getNamespace().equals("http://jabber.org/protocol/muc#user")){
+                                    extentionFound = true;
+                                }
+
+                                if(extentionFound){
+                                    if(eventType ==  XmlPullParser.START_TAG && xpp.getName().equals("item")){
+                                        if(xpp.getAttributeValue(1) != null){
+                                            Log.i("role", xpp.getAttributeValue(1));
+                                            mucParticipant.setRole(xpp.getAttributeValue(1));
+                                        }
+                                    }
+                                }
+
+                                try {
+                                    eventType = xpp.next();
+                                } catch (XmlPullParserException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    }
+
+                    if(!("none".equals(mucParticipant.getRole()))){
+                        xmppData.addMucParticipant(mucId, mucParticipant);
+                    } else {
+                        xmppData.delMucParticipant(mucId, mucParticipant.getNick());
+                    }
+
+                    Bundle bundle = new Bundle();
+                    bundle.putString("muc_participant_list_updated", mucId);
+                    sendMessage(bundle);
                 }
-            });*/
+            });
 
             // Запрос Captcha
             Stanza stanza = new Stanza() {
@@ -683,7 +757,6 @@ public class XmppService extends Service {
                                     xmppData.setMucMessagesList(mucId, msgFrom[1], message.getBody());
                                 } else {
                                     xmppData.setMucMessagesList(mucId, "Тема", message.getSubject());
-                                    //Log.i("joined_message", message.toXML().toString());
                                 }
 
                                 android.os.Message mucChatMsg = new android.os.Message();
@@ -768,6 +841,8 @@ public class XmppService extends Service {
                     } catch (SmackException.NotConnectedException e) {
                         e.printStackTrace();
                     }
+
+                    xmppData.clearMucParticipantList(mucId);
                 }
             }
 

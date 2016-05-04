@@ -14,10 +14,17 @@ import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -101,6 +108,18 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 }
             }
 
+            if(bundle.getString("muc_participant_list_updated") != null){
+                String str = bundle.getString("muc_participant_list_updated") + "\n";
+                List<MucParticipant> mucParticipants =
+                        xmppData.getMucParticipantList(bundle.getString("muc_participant_list_updated"));
+
+                for(MucParticipant participant:mucParticipants){
+                    str += participant.getNick() + "\n";
+                }
+
+                //Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
+            }
+
             if("loaded".equals(bundle.getString("bookmarks"))){
                 MainActivity.this.showBookmarks();
             }
@@ -167,6 +186,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
     // Диалоговое окно выбора закладок
     BookmarksDialogFragment bookmarksDialogFragment;
+
+    // Participants Drawer
+    private ListView mDrawerListView;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -450,6 +474,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 break;
             case R.id.menu_service_discover:
                 startActivity(new Intent(this, ServiceDiscoveryActivity.class));
+                break;
+            case R.id.menu_muc_participant_list:
+                if(mucChatFragment != null){
+                    mucChatFragment.switchParticipantList();
+                }
                 break;
             default:
                 break;

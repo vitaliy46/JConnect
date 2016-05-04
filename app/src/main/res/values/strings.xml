@@ -11,6 +11,7 @@
     <string name="menu_leave_muc">Покинуть конференцию</string>
     <string name="menu_bookmarks_muc">Закладки</string>
     <string name="menu_service_discover">Обзор сервисов</string>
+    <string name="menu_muc_participant_list">Участники</string>
 
     <!-- Service discover menu -->
     <string name="menu_service_discover_join_muc">Войти в комнату</string>
@@ -38,5 +39,8 @@
     <string name="join_muc_dialog_nick_title">Ник:</string>
     <string name="join_muc_dialog_password_title">Пароль:</string>
     <string name="join_muc_dialog_ok">OK</string>
+
+    <!-- Participants drawer -->
+    <string name="participants_drawer_title">Участники</string>
 
 </resources>

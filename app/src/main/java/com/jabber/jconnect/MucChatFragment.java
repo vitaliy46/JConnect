@@ -1,26 +1,23 @@
 package com.jabber.jconnect;
 
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
-import android.text.InputType;
-import android.text.Layout;
 import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
-import android.widget.Toast;
-
-import java.util.concurrent.TimeUnit;
 
 
 /**
@@ -49,6 +46,10 @@ public class MucChatFragment extends Fragment {
     ScrollView scrollMsgView;
     InputMethodManager imm;
     Button sendMessage;
+
+    private DrawerLayout mDrawerLayout;
+    private ListView mDrawerListView;
+    private boolean participantsListIsOpened = false;
 
     XmppData xmppData = XmppData.getInstance();
 
@@ -90,6 +91,33 @@ public class MucChatFragment extends Fragment {
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_chat_muc, container, false);
+
+        String[] strArray = new String[]{"первый", "второй", "третий", "четвертый", "пятый", "шестой", "седьмой"};
+        mDrawerLayout = (DrawerLayout) v.findViewById(R.id.participants_drawer_layout);
+        mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                participantsListIsOpened = true;
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                participantsListIsOpened = false;
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+        mDrawerListView = (ListView) v.findViewById(R.id.left_drawer);
+        mDrawerListView.setAdapter(new ArrayAdapter<>(getContext(), R.layout.participants_drawer_list_item, strArray));
 
         mucIdView = (TextView) v.findViewById(R.id.muc_id_view);
         mucIdView.setText(mucId);
@@ -256,7 +284,15 @@ public class MucChatFragment extends Fragment {
         scrollMsgView.fullScroll(View.FOCUS_DOWN);
     }
 
-    public void scroll(){
-        scrollMsgView.fullScroll(View.FOCUS_DOWN);
+    public void switchParticipantList(){
+        if(mDrawerLayout != null){
+            if(!participantsListIsOpened){
+                participantsListIsOpened = true;
+                mDrawerLayout.openDrawer(Gravity.RIGHT);
+            } else {
+                participantsListIsOpened = false;
+                mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            }
+        }
     }
 }

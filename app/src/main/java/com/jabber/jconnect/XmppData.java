@@ -16,10 +16,10 @@ public class XmppData {
     private static XmppData xmppData = new XmppData();
 
     Map<String, String> messagesList = new HashMap<>();
-    private String jid;
 
     List<String> mucList = new ArrayList<>();
     Map<String, String> mucMessagesList = new HashMap<>();
+    Map<String, List<MucParticipant>> mucParticipantList = new HashMap<>();
 
     private String messageToSend;
 
@@ -72,14 +72,7 @@ public class XmppData {
         mucMessagesList.put(mucId, messages);
     }
 
-    public String getJid() {
-        return jid;
-    }
-
-    public void setJid(String jid) {
-        this.jid = jid;
-    }
-
+    // Сообщение для отправки чат/конференция
     public String getMessageToSend() {
         return messageToSend;
     }
@@ -88,6 +81,7 @@ public class XmppData {
         this.messageToSend = messageToSend;
     }
 
+    // Список конференций
     public List<String> getMucList() {
         return mucList;
     }
@@ -96,6 +90,37 @@ public class XmppData {
         this.mucList = mucList;
     }
 
+    // Список участников конференций
+    public void addMucParticipant(String mucID, MucParticipant mucParticipant){
+        if(mucParticipantList.get(mucID) == null){
+            mucParticipantList.put(mucID, new ArrayList<MucParticipant>());
+        }
+
+        mucParticipantList.get(mucID).add(mucParticipant);
+    }
+
+    public void delMucParticipant(String mucID, String mucParticipantNick){
+        List<MucParticipant> list = mucParticipantList.get(mucID);
+
+        List<MucParticipant> newList = new ArrayList<>();
+        for(MucParticipant participant:list){
+            if(!(mucParticipantNick.equals(participant.getNick()))){
+                newList.add(participant);
+            }
+        }
+
+        mucParticipantList.put(mucID, newList);
+    }
+
+    public List<MucParticipant> getMucParticipantList(String mucID){
+        return mucParticipantList.get(mucID);
+    }
+
+    public void clearMucParticipantList(String mucID){
+        mucParticipantList.put(mucID, new ArrayList<MucParticipant>());
+    }
+
+    // Закладки
     public List<BookmarkedConference> getBookmarkedConferenceList() {
         return bookmarkedConferenceList;
     }
@@ -104,6 +129,7 @@ public class XmppData {
         this.bookmarkedConferenceList = bookmarkedConferenceList;
     }
 
+    // Обзор сервисов
     public List<DiscoverItems.Item> getServiceDiscoverItems() {
         return serviceDiscoverItems;
     }

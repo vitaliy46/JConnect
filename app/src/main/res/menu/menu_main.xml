@@ -53,6 +53,12 @@
         android:title="@string/menu_service_discover"
         app:showAsAction="never" />
 
+    <item
+        android:id="@+id/menu_muc_participant_list"
+        android:orderInCategory="0"
+        android:title="@string/menu_muc_participant_list"
+        app:showAsAction="ifRoom|withText"/>
+
     </group>
 
     <item
