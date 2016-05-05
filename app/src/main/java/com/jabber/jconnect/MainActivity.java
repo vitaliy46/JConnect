@@ -109,15 +109,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             }
 
             if(bundle.getString("muc_participant_list_updated") != null){
-                String str = bundle.getString("muc_participant_list_updated") + "\n";
-                List<MucParticipant> mucParticipants =
-                        xmppData.getMucParticipantList(bundle.getString("muc_participant_list_updated"));
-
-                for(MucParticipant participant:mucParticipants){
-                    str += participant.getNick() + "\n";
+                if(mucChatFragment != null && selectedMucId.equals(bundle.getString("muc_participant_list_updated"))){
+                    mucChatFragment.updateMucParticipantsList(xmppData.getMucParticipantList(selectedMucId));
                 }
-
-                //Toast.makeText(getApplicationContext(), str, Toast.LENGTH_LONG).show();
             }
 
             if("loaded".equals(bundle.getString("bookmarks"))){
@@ -568,6 +562,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             mucChatFragment.setMucIdView(selectedMucId);
             mucChatFragment.setMucChatView(xmppData.getMucMessagesList(selectedMucId));
             mucChatFragment.setSendMsgView("");
+            mucChatFragment.updateMucParticipantsList(xmppData.getMucParticipantList(selectedMucId));
         } else {
             showMucChat();
         }

@@ -2,7 +2,7 @@ package com.jabber.jconnect;
 
 public class MucParticipant {
 
-    private final String nick;
+    private String nick;
     private String role;
 
     public MucParticipant(String nick){

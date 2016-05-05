@@ -572,7 +572,7 @@ public class XmppService extends Service {
                     //Log.i("participant_listener", presence.toXML().toString());
 
                     String[] from = presence.getFrom().split("/");
-                    Log.i("from", from[1]);
+                    //Log.i("from", from[1]);
                     MucParticipant mucParticipant = new MucParticipant(from[1]);
 
                     XmlPullParserFactory factory = null;
@@ -613,7 +613,7 @@ public class XmppService extends Service {
                                 if(extentionFound){
                                     if(eventType ==  XmlPullParser.START_TAG && xpp.getName().equals("item")){
                                         if(xpp.getAttributeValue(1) != null){
-                                            Log.i("role", xpp.getAttributeValue(1));
+                                            //Log.i("role", xpp.getAttributeValue(1));
                                             mucParticipant.setRole(xpp.getAttributeValue(1));
                                         }
                                     }

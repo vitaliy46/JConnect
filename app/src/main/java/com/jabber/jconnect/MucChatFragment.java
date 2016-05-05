@@ -4,6 +4,8 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Gravity;
@@ -18,6 +20,11 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+
+import java.util.List;
 
 
 /**
@@ -37,7 +44,7 @@ public class MucChatFragment extends Fragment {
     // TODO: Rename and change types of parameters
     private String mucId;
     private String mucChat;
-    private String sendMsg;
+    private String sendMsg = "";
 
     TextView mucIdView;
     TextView mucChatView;
@@ -52,6 +59,9 @@ public class MucChatFragment extends Fragment {
     private boolean participantsListIsOpened = false;
 
     XmppData xmppData = XmppData.getInstance();
+
+    RVAdapter adapter;
+    List<MucParticipant> participants;
 
     private OnMucChatFragmentInteractionListener mListener;
 
@@ -116,8 +126,13 @@ public class MucChatFragment extends Fragment {
             }
         });
 
-        mDrawerListView = (ListView) v.findViewById(R.id.left_drawer);
-        mDrawerListView.setAdapter(new ArrayAdapter<>(getContext(), R.layout.participants_drawer_list_item, strArray));
+        participants = xmppData.getMucParticipantList(mucId);
+
+        RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.participants_list_recycler);
+        recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+
+        adapter = new RVAdapter(participants);
+        recyclerView.setAdapter(adapter);
 
         mucIdView = (TextView) v.findViewById(R.id.muc_id_view);
         mucIdView.setText(mucId);
@@ -293,6 +308,76 @@ public class MucChatFragment extends Fragment {
                 participantsListIsOpened = false;
                 mDrawerLayout.closeDrawer(Gravity.RIGHT);
             }
+        }
+    }
+
+    public void updateMucParticipantsList(List<MucParticipant> participants){
+        adapter.updateValues(participants);
+        adapter.notifyDataSetChanged();
+    }
+
+    public void onParticipantsListInteraction(String participantNick) {
+        if(sendMsg == null) sendMsg = "";
+        sendMsg = sendMsg + participantNick + ": ";
+        messageText.setText(sendMsg);
+        messageText.setSelection(messageText.getText().length());
+    }
+
+    public class RVAdapter extends RecyclerView.Adapter<RVAdapter.ParticipantViewHolder>{
+        public class ParticipantViewHolder extends RecyclerView.ViewHolder {
+            public final View mView;
+            public final TextView participantNick;
+            public MucParticipant mItem;
+
+            ParticipantViewHolder(View itemView) {
+                super(itemView);
+                mView = itemView;
+                participantNick = (TextView)itemView.findViewById(R.id.participants_list_item);
+            }
+        }
+
+        List<MucParticipant> participants;
+
+        RVAdapter(List<MucParticipant> participants){
+            this.participants = participants;
+        }
+
+        public void updateValues(List<MucParticipant> participants){
+            this.participants = participants;
+        }
+
+        @Override
+        public int getItemCount() {
+            return participants.size();
+        }
+
+        @Override
+        public ParticipantViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+            View v = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.participants_drawer_list_item, parent, false);
+
+            return new ParticipantViewHolder(v);
+        }
+
+        @Override
+        public void onBindViewHolder(final ParticipantViewHolder participantViewHolder, int position) {
+            participantViewHolder.mItem = participants.get(position);
+            participantViewHolder.participantNick.setText(participants.get(position).getNick());
+            participantViewHolder.mView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (null != mListener) {
+                        // Notify the active callbacks interface (the activity, if the
+                        // fragment is attached to one) that an item has been selected.
+                        MucChatFragment.this.onParticipantsListInteraction(participantViewHolder.mItem.getNick());
+                    }
+                }
+            });
+        }
+
+        @Override
+        public void onAttachedToRecyclerView(RecyclerView recyclerView) {
+            super.onAttachedToRecyclerView(recyclerView);
         }
     }
 }
