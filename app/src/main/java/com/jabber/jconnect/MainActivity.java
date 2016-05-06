@@ -562,6 +562,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             mucChatFragment.setMucIdView(selectedMucId);
             mucChatFragment.setMucChatView(xmppData.getMucMessagesList(selectedMucId));
             mucChatFragment.setSendMsgView("");
+            mucChatFragment.closeParticipantList();
             mucChatFragment.updateMucParticipantsList(xmppData.getMucParticipantList(selectedMucId));
         } else {
             showMucChat();

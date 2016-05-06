@@ -102,7 +102,6 @@ public class MucChatFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_chat_muc, container, false);
 
-        String[] strArray = new String[]{"первый", "второй", "третий", "четвертый", "пятый", "шестой", "седьмой"};
         mDrawerLayout = (DrawerLayout) v.findViewById(R.id.participants_drawer_layout);
         mDrawerLayout.addDrawerListener(new DrawerLayout.DrawerListener() {
             @Override
@@ -118,6 +117,7 @@ public class MucChatFragment extends Fragment {
             @Override
             public void onDrawerClosed(View drawerView) {
                 participantsListIsOpened = false;
+                adapter.notifyDataSetChanged();
             }
 
             @Override
@@ -130,7 +130,6 @@ public class MucChatFragment extends Fragment {
 
         RecyclerView recyclerView = (RecyclerView) v.findViewById(R.id.participants_list_recycler);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-
         adapter = new RVAdapter(participants);
         recyclerView.setAdapter(adapter);
 
@@ -302,10 +301,16 @@ public class MucChatFragment extends Fragment {
     public void switchParticipantList(){
         if(mDrawerLayout != null){
             if(!participantsListIsOpened){
-                participantsListIsOpened = true;
                 mDrawerLayout.openDrawer(Gravity.RIGHT);
             } else {
-                participantsListIsOpened = false;
+                mDrawerLayout.closeDrawer(Gravity.RIGHT);
+            }
+        }
+    }
+
+    public void closeParticipantList(){
+        if(mDrawerLayout != null){
+            if(participantsListIsOpened){
                 mDrawerLayout.closeDrawer(Gravity.RIGHT);
             }
         }
@@ -313,7 +318,9 @@ public class MucChatFragment extends Fragment {
 
     public void updateMucParticipantsList(List<MucParticipant> participants){
         adapter.updateValues(participants);
-        adapter.notifyDataSetChanged();
+        if(!participantsListIsOpened){
+            adapter.notifyDataSetChanged();
+        }
     }
 
     public void onParticipantsListInteraction(String participantNick) {
