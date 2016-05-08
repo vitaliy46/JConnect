@@ -631,7 +631,17 @@ public class XmppService extends Service {
                     }
 
                     if(!("none".equals(mucParticipant.getRole()))){
-                        xmppData.addMucParticipant(mucId, mucParticipant);
+                        List<MucParticipant> participantList = xmppData.getMucParticipantList(mucId);
+                        boolean participantExists = false;
+                        for(MucParticipant participant:participantList){
+                            if(mucParticipant.getNick().equals(participant.getNick())){
+                                participantExists = true;
+                            }
+                        }
+
+                        if(!participantExists){
+                            xmppData.addMucParticipant(mucId, mucParticipant);
+                        }
                     } else {
                         xmppData.delMucParticipant(mucId, mucParticipant.getNick());
                     }

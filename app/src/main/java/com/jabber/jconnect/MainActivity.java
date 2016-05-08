@@ -19,12 +19,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.AttributeSet;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ScrollView;
 import android.widget.Toast;
 
 import org.json.JSONArray;
@@ -137,6 +140,8 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
+
+                //mainScrollView.setSmoothScrollingEnabled(true);
             }
         }
     }
