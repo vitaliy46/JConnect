@@ -99,6 +99,8 @@ public class XmppService extends Service {
     MultiUserChatManager manager;
     List<String> mucList = new ArrayList<>();
     Map<String, MultiUserChat> mucMap = new HashMap<>();
+    Map<String, PresenceListener> mucParticipantListenerList = new HashMap<>();
+    Map<String, MessageListener> mucMessageListenerList = new HashMap<>();
     RoomInfo roomInfo = null;
 
     // Закладки
@@ -265,8 +267,10 @@ public class XmppService extends Service {
         protected Void doInBackground(Void... params) {
             switch(connectionStatus){
                 case TO_CONNECT:
-                    connect();
-                    connectionStatus = CONNECTED;
+                    if(connection == null){
+                        connect();
+                        connectionStatus = CONNECTED;
+                    }
                     break;
                 case TO_DISCONNECT:
                     disconnect();
@@ -420,38 +424,15 @@ public class XmppService extends Service {
                 manager = MultiUserChatManager.getInstanceFor(connection);
                 // Менеджер сервисов
                 serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
-
-                /*StanzaListener stanzaListener = new StanzaListener() {
-                    @Override
-                    public void processPacket(Stanza stanza) throws SmackException.NotConnectedException {
-                        Log.i("stanza", stanza.toXML().toString());
-                    }
-                };
-                StanzaFilter stanzaFilter = new StanzaFilter() {
-                    @Override
-                    public boolean accept(Stanza stanza) {
-                        return true;
-                    }
-                };
-                connection.addPacketInterceptor(stanzaListener, stanzaFilter);*/
-
-                /*manager.addInvitationListener(new InvitationListener() {
-                    @Override
-                    public void invitationReceived(XMPPConnection xmppConnection, MultiUserChat multiUserChat,
-                                                   String s, String s1, String s2, Message message) {
-                        Log.i("message", message.toXML().toString());
-                        Log.i("getExtensions", message.getExtensions().toString());
-                        Log.i("s", s);
-                        Log.i("s1", s1);
-                        Log.i("s2", s2);
-                    }
-                });*/
             }
         }
 
         // Закрытие соединения
         public void disconnect(){
-            if(connection != null && connection.isConnected()) connection.disconnect();
+            if(connection != null && connection.isConnected()){
+                connection.disconnect();
+                connection = null;
+            }
         }
     }
 
@@ -566,7 +547,7 @@ public class XmppService extends Service {
             xmppData.clearMucParticipantList(mucId);
 
             // Прием сообщений об изменении статуса
-            muc.addParticipantListener(new PresenceListener() {
+            PresenceListener mucPresenceListener = new PresenceListener() {
                 @Override
                 public void processPresence(Presence presence) {
                     //Log.i("participant_listener", presence.toXML().toString());
@@ -650,7 +631,9 @@ public class XmppService extends Service {
                     bundle.putString("muc_participant_list_updated", mucId);
                     sendMessage(bundle);
                 }
-            });
+            };
+            mucParticipantListenerList.put(mucId, mucPresenceListener);
+            muc.addParticipantListener(mucPresenceListener);
 
             // Запрос Captcha
             Stanza stanza = new Stanza() {
@@ -759,7 +742,7 @@ public class XmppService extends Service {
 
                     if(muc.isJoined()){
                         // Слушатель комнаты
-                        muc.addMessageListener(new MessageListener() {
+                        MessageListener mucMessageListener = new MessageListener() {
                             @Override
                             public void processMessage(Message message) {
                                 String[] msgFrom = message.getFrom().split("/");
@@ -781,7 +764,9 @@ public class XmppService extends Service {
                                     e.printStackTrace();
                                 }
                             }
-                        });
+                        };
+                        mucMessageListenerList.put(mucId, mucMessageListener);
+                        muc.addMessageListener(mucMessageListener);
                     } else {
                         if(roomInfo != null){
                             if(roomInfo.isMembersOnly()){
@@ -851,8 +836,11 @@ public class XmppService extends Service {
                     } catch (SmackException.NotConnectedException e) {
                         e.printStackTrace();
                     }
+                    muc.removeParticipantListener(mucParticipantListenerList.get(mucId));
+                    muc.removeMessageListener(mucMessageListenerList.get(mucId));
 
                     xmppData.clearMucParticipantList(mucId);
+                    xmppData.clearMucMessagesList(mucId);
                 }
             }
 

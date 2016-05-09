@@ -180,13 +180,15 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     private static final int SHOW_CHAT_ACTIVITY = 1;
 
     // Параметры MucChatActivity
-    boolean showMucChatActivity = false;
+    boolean showMucActivity = false;
     private static final int SHOW_MUC_CHAT_ACTIVITY = 10;
 
     // Диалоговое окно выбора закладок
     BookmarksDialogFragment bookmarksDialogFragment;
 
-    // Participants Drawer
+    Menu menu;
+
+    // Application menu drawer
     private ListView mDrawerListView;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
@@ -203,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             selectedContactJid = savedInstanceState.getString("jid");
             selectedMucId = savedInstanceState.getString("muc_id");
             showChatActivity = savedInstanceState.getBoolean("show_chat_activity");
+            showMucActivity = savedInstanceState.getBoolean("show_muc_activity");
             sendMsg = savedInstanceState.getString("send_msg");
         }
 
@@ -242,6 +245,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         state.putString("jid", selectedContactJid);
         state.putString("muc_id", selectedMucId);
         state.putBoolean("show_chat_activity", showChatActivity);
+        state.putBoolean("show_muc_activity", showMucActivity);
         state.putString("send_msg", sendMsg);
     }
 
@@ -254,7 +258,7 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             // Была нажата кнопка Back, чат закрыт
             if(resultCode == ChatActivity.CHAT_ACTIVITY_BACK_PRESSED){
                 showChatActivity = false;
-                selectedContactJid = null;
+                //selectedContactJid = null;
                 sendMsg = "";
 
                 Fragment f = fm.findFragmentById(R.id.fragmentChatContainer);
@@ -293,8 +297,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         if(requestCode == SHOW_MUC_CHAT_ACTIVITY){
             // Была нажата кнопка Back, чат закрыт
             if(resultCode == MucChatActivity.MUC_CHAT_ACTIVITY_BACK_PRESSED){
-                showChatActivity = false;
-                selectedMucId = null;
+                showMucActivity = false;
+                //selectedMucId = null;
+                if(menu != null){
+                    menu.setGroupVisible(R.id.muc_menu, false);
+                }
                 sendMsg = "";
 
                 Fragment f = fm.findFragmentById(R.id.fragmentChatContainer);
@@ -387,6 +394,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 mucChatFragment.setMucId(selectedMucId);
                 mucChatFragment.setSendMsg(sendMsg);
             }
+
+            if(menu != null){
+                menu.setGroupVisible(R.id.muc_menu, true);
+            }
         } else {
             /*
             * Создаем MucChatActivity, если вызывается впервые (showMucChatActivity == false),
@@ -396,8 +407,8 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             * если showMucChatActivity == true, активность уже запускалась, следующий вызов делается в
             * onActivityResult с передачей сохраненных параметров
             */
-            if(!showChatActivity || isTablet()){
-                showChatActivity = true;
+            if(!showMucActivity || isTablet()){
+                showMucActivity = true;
                 startActivityForResult(new Intent(this, MucChatActivity.class)
                                 .putExtra("muc_id", selectedMucId)
                                 .putExtra("send_msg", sendMsg),
@@ -419,7 +430,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
         // Подключаемся к сервису при выходе активности на передний план
         bindService(new Intent(this, XmppService.class), mConnection, Context.BIND_ABOVE_CLIENT);
-        onStartService();
+        if (!mBound) {
+            Intent intent = new Intent(this, XmppService.class);
+            startService(intent);
+            bindService(intent, mConnection, Context.BIND_ABOVE_CLIENT);
+        }
     }
 
     @Override
@@ -439,6 +454,12 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+
+        this.menu = menu;
+        if(selectedMucId != null){
+            this.menu.setGroupVisible(R.id.muc_menu, true);
+        }
+
         return true;
     }
 
@@ -450,29 +471,45 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         int id = item.getItemId();
 
         switch (id){
-            case R.id.menu_start_service:
-                onStartService();
-                break;
-            case R.id.menu_stop_service:
-                onStopService();
+            case R.id.menu_exit:
+                if (mBound) {
+                    sendRequestMessage("stop");
+                }
+                finish();
                 break;
             case R.id.menu_connect:
-                onConnect();
+                if (mBound) {
+                    sendRequestMessage("connect");
+                }
                 break;
             case R.id.menu_disconnect:
-                onDisconnect();
-                break;
-            case R.id.menu_join_muc:
-                joinToMuc();
-                break;
-            case R.id.menu_leave_muc:
-                leaveMuc();
+                if (mBound) {
+                    sendRequestMessage("disconnect");
+                }
                 break;
             case R.id.menu_bookmarks_muc:
                 sendRequestMessage("bookmarks_request");
                 break;
             case R.id.menu_service_discover:
                 startActivity(new Intent(this, ServiceDiscoveryActivity.class));
+                break;
+            case R.id.menu_leave_muc:
+                if (mBound) {
+                    if(selectedMucId != null){
+                        Bundle b = new Bundle();
+                        b.putString("leave_muc", selectedMucId);
+                        sendMessage(b);
+
+                        if(mucChatFragment != null) {
+                            fm.beginTransaction().remove(mucChatFragment).commit();
+                            mucChatFragment = null;
+                        }
+
+                        if(menu != null){
+                            menu.setGroupVisible(R.id.muc_menu, false);
+                        }
+                    }
+                }
                 break;
             case R.id.menu_muc_participant_list:
                 if(mucChatFragment != null){
@@ -485,50 +522,6 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
         return super.onOptionsItemSelected(item);
     }
-
-    // Реализация методов меню
-    public void onStartService() {
-        if (!mBound) {
-            Intent intent = new Intent(this, XmppService.class);
-            startService(intent);
-            bindService(intent, mConnection, Context.BIND_ABOVE_CLIENT);
-        }
-    }
-
-    public void onStopService() {
-        if (mBound) {
-            sendRequestMessage("stop");
-        }
-    }
-
-    public void onConnect() {
-        if (mBound) {
-            sendRequestMessage("connect");
-        }
-    }
-
-    public void onDisconnect() {
-        if (mBound) {
-            sendRequestMessage("disconnect");
-        }
-    }
-
-    public void joinToMuc() {
-        if (mBound) {
-            sendRequestMessage("join_muc");
-        }
-    }
-
-    public void leaveMuc() {
-        if (mBound) {
-            //sendRequestMessage("leave_muc");
-            if(selectedMucId != null){
-                Bundle b = new Bundle();
-                b.putString("leave_muc", selectedMucId);
-                sendMessage(b);
-            }
-        }
-    }
     ///////////////////////////////////////////////////////////////////
 
     // Реализация методов интерфейса mListener во фрагменте ContactFragment
@@ -536,7 +529,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     public void onListFragmentInteraction(Contact c) {
         // Сохраняем выбранный контакт в переменную
         selectedContactJid = c.getJid();
+
         selectedMucId = null;
+        if(menu != null){
+            menu.setGroupVisible(R.id.muc_menu, false);
+        }
 
         if(mucChatFragment != null) {
             fm.beginTransaction().remove(mucChatFragment).commit();
@@ -569,9 +566,14 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             mucChatFragment.setSendMsgView("");
             mucChatFragment.closeParticipantList();
             mucChatFragment.updateMucParticipantsList(xmppData.getMucParticipantList(selectedMucId));
+            if(menu != null){
+                menu.setGroupVisible(R.id.muc_menu, true);
+            }
         } else {
             showMucChat();
         }
+
+
     }
 
     // Реализация методов интерфейса mListener во фрагменте ChatFragment

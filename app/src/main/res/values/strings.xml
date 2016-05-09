@@ -3,15 +3,16 @@
     <string name="action_settings">Settings</string>
 
     <!-- Main menu -->
-    <string name="menu_start_service">Запустить сервис</string>
-    <string name="menu_stop_service">Остановить сервис</string>
+    <string name="menu_exit">Выйти</string>
     <string name="menu_connect">Соединение</string>
     <string name="menu_disconnect">Отключиться</string>
-    <string name="menu_join_muc">Войти в конференцию</string>
-    <string name="menu_leave_muc">Покинуть конференцию</string>
+    <string name="menu_leave_muc">Покинуть комнату</string>
     <string name="menu_bookmarks_muc">Закладки</string>
     <string name="menu_service_discover">Обзор сервисов</string>
     <string name="menu_muc_participant_list">Участники</string>
+
+    <!-- Muc menu -->
+    <string name="muc_menu_add_bookmark">В закладки</string>
 
     <!-- Service discover menu -->
     <string name="menu_service_discover_join_muc">Войти в комнату</string>

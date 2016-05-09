@@ -11,10 +11,12 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 public class MucChatActivity extends AppCompatActivity implements MucChatFragment.OnMucChatFragmentInteractionListener {
 
@@ -114,6 +116,9 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         startIntent = getIntent();
 
         mucId = startIntent.getStringExtra("muc_id");
@@ -155,9 +160,26 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
         int id = item.getItemId();
 
         switch (id){
+            case android.R.id.home:
+                onBackPressed();
+                break;
             case R.id.menu_muc_participant_list:
                 if(mucChatFragment != null){
                     mucChatFragment.switchParticipantList();
+                }
+                break;
+            case R.id.muc_menu_add_bookmark:
+                //
+                break;
+            case R.id.menu_leave_muc:
+                if (mBound) {
+                    if(mucId != null){
+                        Bundle b = new Bundle();
+                        b.putString("leave_muc", mucId);
+                        sendMessage(b);
+                    }
+
+                    finish();
                 }
                 break;
             default:

@@ -72,6 +72,10 @@ public class XmppData {
         mucMessagesList.put(mucId, messages);
     }
 
+    public void clearMucMessagesList(String mucId) {
+        mucMessagesList.put(mucId, null);
+    }
+
     // Сообщение для отправки чат/конференция
     public String getMessageToSend() {
         return messageToSend;

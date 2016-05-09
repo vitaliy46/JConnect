@@ -3,61 +3,54 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.jabber.jconnect.MainActivity">
 
-    <group android:id="@+id/main">
+    <group android:id="@+id/main_menu">
 
-    <item
-        android:id="@+id/menu_start_service"
-        android:orderInCategory="0"
-        android:title="@string/menu_start_service"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_exit"
+            android:orderInCategory="0"
+            android:title="@string/menu_exit"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_stop_service"
-        android:orderInCategory="0"
-        android:title="@string/menu_stop_service"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_connect"
+            android:orderInCategory="0"
+            android:title="@string/menu_connect"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_connect"
-        android:orderInCategory="0"
-        android:title="@string/menu_connect"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_disconnect"
+            android:orderInCategory="0"
+            android:title="@string/menu_disconnect"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_disconnect"
-        android:orderInCategory="0"
-        android:title="@string/menu_disconnect"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_bookmarks_muc"
+            android:orderInCategory="0"
+            android:title="@string/menu_bookmarks_muc"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_join_muc"
-        android:orderInCategory="0"
-        android:title="@string/menu_join_muc"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_service_discover"
+            android:orderInCategory="0"
+            android:title="@string/menu_service_discover"
+            app:showAsAction="never" />
 
-    <item
-        android:id="@+id/menu_leave_muc"
-        android:orderInCategory="0"
-        android:title="@string/menu_leave_muc"
-        app:showAsAction="never" />
+    </group>
 
-    <item
-        android:id="@+id/menu_bookmarks_muc"
-        android:orderInCategory="0"
-        android:title="@string/menu_bookmarks_muc"
-        app:showAsAction="never" />
+    <group android:id="@+id/muc_menu"
+        android:visible="false">
 
-    <item
-        android:id="@+id/menu_service_discover"
-        android:orderInCategory="0"
-        android:title="@string/menu_service_discover"
-        app:showAsAction="never" />
+        <item
+            android:id="@+id/menu_muc_participant_list"
+            android:orderInCategory="0"
+            android:title="@string/menu_muc_participant_list"
+            app:showAsAction="ifRoom|withText"/>
 
-    <item
-        android:id="@+id/menu_muc_participant_list"
-        android:orderInCategory="0"
-        android:title="@string/menu_muc_participant_list"
-        app:showAsAction="ifRoom|withText"/>
+        <item
+            android:id="@+id/menu_leave_muc"
+            android:orderInCategory="0"
+            android:title="@string/menu_leave_muc"
+            app:showAsAction="never" />
 
     </group>
 
