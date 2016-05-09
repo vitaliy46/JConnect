@@ -179,7 +179,7 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
                         sendMessage(b);
                     }
 
-                    finish();
+                    onBackPressed();
                 }
                 break;
             default:
