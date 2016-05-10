@@ -33,6 +33,7 @@ import org.jivesoftware.smack.chat.ChatMessageListener;
 import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
+import org.jivesoftware.smack.roster.packet.RosterPacket;
 import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.bookmarks.BookmarkManager;
@@ -89,7 +90,7 @@ public class XmppService extends Service {
     Connection cn;
 
     // Контакты
-    List<Contact> ContactList = new ArrayList<>();
+    //List<Contact> ContactList = new ArrayList<>();
 
     // Чаты
     ChatManager chatManager;
@@ -123,13 +124,6 @@ public class XmppService extends Service {
             // инициализация replyMessanger (replyTo - адрес обратной связи)
             if(msg.replyTo != null) {
                 replyMessenger = msg.replyTo;
-                if("main".equals(msgBundle.getString("activity"))) {
-                    XmppService.this.sendContactsToActivity();
-
-                    Bundle bundle = new Bundle();
-                    bundle.putString("muc_list_update", "resume");
-                    XmppService.this.sendMessage(bundle);
-                }
 
                 if("service_discover".equals(msgBundle.getString("activity"))) {
                     Bundle bundle = new Bundle();
@@ -417,13 +411,25 @@ public class XmppService extends Service {
                     e.printStackTrace();
                 }
 
-                XmppService.this.setContactList();
-                XmppService.this.sendContactsToActivity();
+                XmppService.this.updateContactList();
 
                 // Менеджер конференций
                 manager = MultiUserChatManager.getInstanceFor(connection);
                 // Менеджер сервисов
                 serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
+
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        while(connection.isConnected()){
+                            try {
+                                Thread.sleep(60000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    }
+                }).start();
             }
         }
 
@@ -436,65 +442,34 @@ public class XmppService extends Service {
         }
     }
 
-    private void setContactList(){
+    private void updateContactList(){
         if(connection != null && connection.isAuthenticated()){
             Roster roster = Roster.getInstanceFor(connection);
             Collection<RosterEntry> entries = roster.getEntries();
 
+            List<Contact> contactList = new ArrayList<>();
             Pattern pJid = Pattern.compile("(\\S+)@(\\S+\\.)(\\w+)");
-
-            String jid;
-            String name;
-            String group;
-
-            String str;
-
-            for (RosterEntry entry : entries) {
-                str = entry.toString();
-
-                // Jabber ID
-                Matcher m = pJid.matcher(str);
+            for(RosterEntry entry : entries){
+                Matcher m = pJid.matcher(entry.getUser());
                 if(m.find()){
-                    jid = m.group();
-                    Contact c = new Contact(jid);
+                    Contact contact = new Contact(m.group());
+                    contact.setName(entry.getName());
+                    contact.setGroup(entry.getGroups().toString());
 
-                    // Nick
-                    if(str.indexOf(':') != -1) {
-                        name = str.substring(0, str.indexOf(':'));
-                        c.setName(name);
+                    RosterPacket.ItemStatus itemStatus = entry.getStatus();
+                    if(itemStatus != null){
+                        contact.setStatus(itemStatus.name());
                     }
 
-                    // группа контакта в ростере
-                    if(str.lastIndexOf('[') != -1) {
-                        group = str.substring(str.lastIndexOf('[') + 1, str.lastIndexOf(']'));
-                        c.setGroup(group);
-                    }
-
-                    ContactList.add(c);
+                    contactList.add(contact);
                 }
             }
-        }
-    }
 
-    public void sendContactsToActivity(){
-        if(connection != null && connection.isAuthenticated()){
-            android.os.Message contactsMsg = new android.os.Message();
+            xmppData.setContactList(contactList);
+
             Bundle bundle = new Bundle();
-
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("ContactList", ContactList);
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-            bundle.putString("roster", jsonObject.toString());
-            contactsMsg.setData(bundle);
-            try {
-                replyMessenger.send(contactsMsg);
-            } catch (RemoteException e) {
-                e.printStackTrace();
-            }
+            bundle.putString("roster", "update");
+            sendMessage(bundle);
         }
     }
 

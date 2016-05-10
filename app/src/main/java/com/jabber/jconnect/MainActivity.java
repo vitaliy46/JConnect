@@ -121,27 +121,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 MainActivity.this.showBookmarks();
             }
 
-            if(bundle.getString("roster") != null) {
-                String str = bundle.getString("roster");
-                List<Contact> contacts = new ArrayList<>();
-                try {
-                    JSONObject jsonObject = new JSONObject(str);
-                    JSONArray ar = new JSONArray((String)jsonObject.get("ContactList"));
-
-                    for(int i=0; i<ar.length(); i++){
-                        String[] attr = String.valueOf(ar.get(i)).split(",");
-                        Contact c = new Contact(attr[0]);
-                        c.setName(attr[1]);
-                        c.setGroup(attr[2]);
-                        contacts.add(c);
-                    }
-
-                    fragmentContact.updateContacts(contacts);
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            if("update".equals(bundle.getString("roster"))){
+                if(fragmentContact != null){
+                    fragmentContact.updateContacts(xmppData.getContactList());
                 }
-
-                //mainScrollView.setSmoothScrollingEnabled(true);
             }
         }
     }
@@ -434,6 +417,13 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             Intent intent = new Intent(this, XmppService.class);
             startService(intent);
             bindService(intent, mConnection, Context.BIND_ABOVE_CLIENT);
+        }
+
+        if(fragmentContact != null){
+            fragmentContact.updateContacts(xmppData.getContactList());
+        }
+        if(mucFragment != null){
+            mucFragment.updateMucList(xmppData.getMucList());
         }
     }
 

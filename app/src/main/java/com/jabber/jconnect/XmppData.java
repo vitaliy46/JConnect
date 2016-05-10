@@ -15,6 +15,7 @@ import java.util.Map;
 public class XmppData {
     private static XmppData xmppData = new XmppData();
 
+    List<Contact> contactList = new ArrayList<>();
     Map<String, String> messagesList = new HashMap<>();
 
     List<String> mucList = new ArrayList<>();
@@ -32,6 +33,14 @@ public class XmppData {
     }
 
     private XmppData() {
+    }
+
+    public List<Contact> getContactList() {
+        return contactList;
+    }
+
+    public void setContactList(List<Contact> contactList) {
+        this.contactList = contactList;
     }
 
     public String getMessagesList(String jid) {

@@ -39,9 +39,11 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        String name = holder.mItem.getName();
         String jid = holder.mItem.getJid();
-        String contentText = ((!name.equals(" ")) ? (name + " - ") : "") + jid;
+        String name = holder.mItem.getName();
+        String status = holder.mItem.getStatus();
+        String contentText = ((name != null) ? (name + " - ") : "") + jid;
+        //contentText = (status != null) ? (contentText + " - " + status) : contentText;
         holder.mContentView.setText(contentText);
 
         /*holder.mView.setOnClickListener(new View.OnClickListener() {

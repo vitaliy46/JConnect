@@ -5,6 +5,7 @@ public class Contact {
     private String jid;
     private String name = " ";
     private String group = " ";
+    private String status = " ";
 
     public Contact(String jid){
         this.jid = jid;
@@ -28,6 +29,14 @@ public class Contact {
 
     public void setGroup(String group) {
         this.group = group;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     @Override

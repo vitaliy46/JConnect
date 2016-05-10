@@ -133,6 +133,9 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+
         if(savedInstanceState != null) {
             // Восстановление значений сохраненных в savedInstanceState
             parentEntityID = savedInstanceState.getString("parent_entity_id");
@@ -193,6 +196,9 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         int id = item.getItemId();
 
         switch (id){
+            case android.R.id.home:
+                onBackPressed();
+                break;
             case R.id.menu_service_discover_join_muc:
                 if(mucIsMembersOnly){
                     String membersOnlyMsg = "Комната " + mucEntity + " только для зарегитсрированных участников";
