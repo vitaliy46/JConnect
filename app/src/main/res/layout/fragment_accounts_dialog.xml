@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/accounts_dialog_add_title"
+        android:textAlignment="center"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:textColor="#ffffff"
+        android:background="#464646"
+        android:id="@+id/accounts_dialog_title" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/accounts_dialog_server"
+        android:textAlignment="gravity"
+        android:gravity="left"
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:id="@+id/accounts_dialog_server"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <EditText
+        android:id="@+id/accounts_dialog_server_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:ems="10"
+        android:focusable="true"
+        android:textSize="18sp"
+        android:textIsSelectable="true"
+        android:textAlignment="gravity"
+        android:scrollbars="vertical"
+        android:gravity="top|left"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="text" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/accounts_dialog_login"
+        android:textAlignment="gravity"
+        android:gravity="left"
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:id="@+id/accounts_dialog_login"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <EditText
+        android:id="@+id/accounts_dialog_login_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:ems="10"
+        android:focusable="true"
+        android:textSize="18sp"
+        android:textIsSelectable="true"
+        android:textAlignment="gravity"
+        android:scrollbars="vertical"
+        android:gravity="top|left"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="text" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/accounts_dialog_password"
+        android:textAlignment="gravity"
+        android:gravity="left"
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:id="@+id/accounts_dialog_password"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <EditText
+        android:id="@+id/accounts_dialog_password_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:ems="10"
+        android:focusable="true"
+        android:textSize="18sp"
+        android:textIsSelectable="true"
+        android:textAlignment="gravity"
+        android:scrollbars="vertical"
+        android:gravity="top|left"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="textPassword" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/accounts_dialog_port"
+        android:textAlignment="gravity"
+        android:gravity="left"
+        android:textSize="16sp"
+        android:textColor="#000"
+        android:id="@+id/accounts_dialog_port"
+        android:paddingTop="5dp"
+        android:paddingBottom="5dp" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="0.8dp"
+        android:background="@drawable/separator" />
+
+    <EditText
+        android:id="@+id/accounts_dialog_port_edit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:imeOptions="flagNoExtractUi"
+        android:ems="10"
+        android:focusable="true"
+        android:textSize="18sp"
+        android:textIsSelectable="true"
+        android:textAlignment="gravity"
+        android:scrollbars="vertical"
+        android:gravity="top|left"
+        android:clickable="true"
+        android:focusableInTouchMode="true"
+        android:inputType="text" />
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/accounts_dialog_cancel_button"
+            android:id="@+id/accounts_dialog_cancel_button" />
+
+        <Button
+            style="?android:attr/buttonStyleSmall"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="@string/accounts_dialog_submit_button"
+            android:id="@+id/accounts_dialog_submit_button" />
+    </LinearLayout>
+
+</LinearLayout>

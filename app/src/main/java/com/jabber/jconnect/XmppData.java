@@ -1,6 +1,10 @@
 package com.jabber.jconnect;
 
 
+import android.content.Context;
+
+import com.jabber.jconnect.database.JConnectDbContract;
+
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
 
@@ -28,6 +32,8 @@ public class XmppData {
 
     List<DiscoverItems.Item> serviceDiscoverItems = new ArrayList<>();
 
+    JConnectDbContract jConnectDbContract = new JConnectDbContract();
+
     public static XmppData getInstance() {
         return xmppData;
     }
@@ -54,7 +60,14 @@ public class XmppData {
             messages = "";
         }
 
-        messages += nick + ": " + message + "\n";
+        if(message == null) {
+            message = "";
+        }
+
+        Date date = new java.util.Date();
+        String time = new SimpleDateFormat("dd.MM.yyyy HH:mm:ss", Locale.getDefault()).format(date);
+
+        messages += "[" + time + "] " + nick + ": " + message + "\n";
         messagesList.put(jid, messages);
     }
 
@@ -67,6 +80,10 @@ public class XmppData {
 
         if(messages == null) {
             messages = "";
+        }
+
+        if(message == null) {
+            message = "";
         }
 
         Date date = new java.util.Date();
@@ -153,5 +170,34 @@ public class XmppData {
 
     public void clearServiceDiscoverItems() {
         this.serviceDiscoverItems = new ArrayList<>();
+    }
+
+    // Работа с базой данных
+    public void initializeDatabase(Context context){
+        jConnectDbContract.initializeDbHelper(context);
+    }
+
+    public void closeDatabase(){
+        jConnectDbContract.closeDbHelper();
+    }
+
+    public long insertAccount(String serverName, String login, String password, int port, int selected){
+        return jConnectDbContract.insertAccount(serverName, login, password, port, selected);
+    }
+
+    public List<Account> getAccounts(){
+        return jConnectDbContract.getAccounts();
+    }
+
+    public Account getSelectedAccount(){
+        return jConnectDbContract.getSelectedAccount();
+    }
+
+    public void updateAccount(Account account){
+        jConnectDbContract.updateAccount(account);
+    }
+
+    public void deleteAccount(int id){
+        jConnectDbContract.deleteAccount(id);
     }
 }

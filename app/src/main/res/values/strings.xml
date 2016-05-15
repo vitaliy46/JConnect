@@ -10,12 +10,35 @@
     <string name="menu_bookmarks_muc">Закладки</string>
     <string name="menu_service_discover">Обзор сервисов</string>
     <string name="menu_muc_participant_list">Участники</string>
+    <string name="menu_accounts">Учетные записи</string>
 
     <!-- Muc menu -->
     <string name="muc_menu_add_bookmark">В закладки</string>
 
     <!-- Service discover menu -->
     <string name="menu_service_discover_join_muc">Войти в комнату</string>
+
+    <!-- Accounts -->
+    <string name="title_accounts_activity">Учетные записи</string>
+    <string name="accounts_item_edit_button">изменить</string>
+
+    <!-- Accounts menu -->
+    <string name="accounts_menu_choose">Выбрать</string>
+    <string name="accounts_menu_add">Добавить</string>
+
+    <!-- Accounts dialog -->
+    <string name="accounts_dialog_add_title">Добавить учетную запись</string>
+    <string name="accounts_dialog_edit_title">Изменить учетную запись</string>
+    <string name="accounts_dialog_server">Адрес сервера</string>
+    <string name="accounts_dialog_login">Логин</string>
+    <string name="accounts_dialog_password">Пароль</string>
+    <string name="accounts_dialog_port">Порт</string>
+    <string name="accounts_dialog_submit_button">OK</string>
+    <string name="accounts_dialog_cancel_button">Отмена</string>
+    <string name="accounts_dialog_field_error_beginning">Поле</string>
+    <string name="accounts_dialog_empty_field_error">не должно быть пустым</string>
+    <string name="accounts_dialog_server_address_field_error">должно иметь формат login@server.com</string>
+    <string name="accounts_dialog_digits_only_error">должно иметь только цифры</string>
 
     <!-- TODO: Remove or change this placeholder text -->
     <string name="title_activity_chat">Чат</string>

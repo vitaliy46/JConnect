@@ -229,6 +229,13 @@ public class XmppService extends Service {
                 .build();
         startForeground(6711, mNotification);
 
+        //long accountID = xmppData.insertAccount("p.ru", "vitaliy446", ";tkfnby1", 5222, 0);
+        //Log.d("accountID", String.valueOf(accountID));
+        //xmppData.getAccounts();
+        //xmppData.getSelectedAccount();
+        //xmppData.updateAccount();
+        //xmppData.deleteAccount(1);
+
         return Service.START_STICKY;
     }
 

@@ -483,6 +483,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             case R.id.menu_service_discover:
                 startActivity(new Intent(this, ServiceDiscoveryActivity.class));
                 break;
+            case R.id.menu_accounts:
+                startActivity(new Intent(this, AccountsActivity.class));
+                break;
             case R.id.menu_leave_muc:
                 if (mBound) {
                     if(selectedMucId != null){
