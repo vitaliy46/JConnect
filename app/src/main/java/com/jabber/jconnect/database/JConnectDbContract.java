@@ -7,11 +7,16 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.provider.BaseColumns;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.jabber.jconnect.Account;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 public final class JConnectDbContract {
 
@@ -249,5 +254,21 @@ public final class JConnectDbContract {
         String[] selectionArgs = { String.valueOf(id) };
         // Issue SQL statement.
         db.delete(AccountEntry.TABLE_NAME, selection, selectionArgs);
+    }
+
+    public void deleteAccounts(List<Account> accounts){
+        SQLiteDatabase db = mDbHelper.getWritableDatabase();
+
+        int size = accounts.size();
+        String idListString = "";
+        for(int i = 0; i < size; i++){
+            if(i < (size - 1)){
+                idListString += String.valueOf(accounts.get(i).getId()) + COMMA_SEP;
+            } else {
+                idListString += String.valueOf(accounts.get(i).getId());
+            }
+        }
+
+        db.delete(AccountEntry.TABLE_NAME, AccountEntry._ID + " IN(" + idListString + ")", null);
     }
 }

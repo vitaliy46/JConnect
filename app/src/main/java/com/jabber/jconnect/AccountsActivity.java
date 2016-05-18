@@ -15,6 +15,13 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 public class AccountsActivity extends AppCompatActivity implements AccountsFragment.OnAccountInteractionListener,
         AccountsDialogFragment.AccountsDialogListener{
 
@@ -82,6 +89,10 @@ public class AccountsActivity extends AppCompatActivity implements AccountsFragm
 
     AccountsFragment accountsFragment;
     AccountsDialogFragment accountsDialogFragment;
+
+    List<Account> checkedAccounts = new ArrayList<>();
+    //Set<Account> checkedAccounts2 = new HashSet<>();
+    //Map<String, Account> checkedAccounts3 = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -152,7 +163,17 @@ public class AccountsActivity extends AppCompatActivity implements AccountsFragm
                 onBackPressed();
                 break;
             case R.id.accounts_menu_choose:
-                //
+                accountsFragment.updateAccountsListViewWithCheckBox(true);
+                break;
+            case R.id.accounts_menu_cancel_choise:
+                accountsFragment.updateAccountsListViewWithCheckBox(false);
+                checkedAccounts = new ArrayList<>();
+                break;
+            case R.id.accounts_menu_delete_chosen:
+                xmppData.deleteAccounts(checkedAccounts);
+                accountsFragment.updateAccountsListViewWithCheckBox(false);
+                accountsFragment.updateAccountsList(xmppData.getAccounts());
+                checkedAccounts = new ArrayList<>();
                 break;
             case R.id.accounts_menu_add:
                 accountsDialogFragment = AccountsDialogFragment.newInstance(AccountsDialogFragment.NEW_ACCOUNT);
@@ -170,6 +191,16 @@ public class AccountsActivity extends AppCompatActivity implements AccountsFragm
     public void onAccountEditButtonClicked(Account account) {
         accountsDialogFragment = AccountsDialogFragment.newInstance(account, AccountsDialogFragment.EDIT_ACCOUNT);
         accountsDialogFragment.show(fm, "accounts_dialog_fragment");
+    }
+
+    @Override
+    public void onAccountChecked(Account account) {
+        checkedAccounts.add(account);
+    }
+
+    @Override
+    public void onAccountUnChecked(Account account) {
+        checkedAccounts.remove(account);
     }
 
     // Реализация методов mListener в AccountsDialogFragment

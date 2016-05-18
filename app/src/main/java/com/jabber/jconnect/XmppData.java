@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 public class XmppData {
     private static XmppData xmppData = new XmppData();
@@ -199,5 +200,9 @@ public class XmppData {
 
     public void deleteAccount(int id){
         jConnectDbContract.deleteAccount(id);
+    }
+
+    public void deleteAccounts(List<Account> accounts){
+        jConnectDbContract.deleteAccounts(accounts);
     }
 }

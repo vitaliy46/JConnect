@@ -11,10 +11,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.RadioButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class AccountsFragment extends Fragment {
@@ -113,6 +117,8 @@ public class AccountsFragment extends Fragment {
 
     public interface OnAccountInteractionListener{
         void onAccountEditButtonClicked(Account account);
+        void onAccountChecked(Account account);
+        void onAccountUnChecked(Account account);
     }
 
     public void updateAccountsList(List<Account> accounts){
@@ -120,19 +126,31 @@ public class AccountsFragment extends Fragment {
         adapter.notifyDataSetChanged();
     }
 
+    public void updateAccountsListViewWithCheckBox(boolean withCheckBox){
+        adapter.withCheckBox(withCheckBox);
+        adapter.notifyDataSetChanged();
+    }
+
     // Адаптер для списка recyclerView
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AccountViewHolder>{
         public class AccountViewHolder extends RecyclerView.ViewHolder {
             public final View mView;
-            public final RadioButton mItemView;
-            public final Button mEditButton;
+            public RadioButton mItemViewRadio = null;
+            public TextView mItemTextView = null;
+            public Button mEditButton = null;
+            public CheckBox mCheckBox = null;
             public Account mItem;
 
             AccountViewHolder(View itemView) {
                 super(itemView);
                 mView = itemView;
-                mItemView = (RadioButton)itemView.findViewById(R.id.accounts_item_radio_button);
-                mEditButton = (Button)itemView.findViewById(R.id.accounts_item_edit_button);
+                if(!withCheckBox){
+                    mItemViewRadio = (RadioButton)itemView.findViewById(R.id.accounts_item_radio_button);
+                    mEditButton = (Button)itemView.findViewById(R.id.accounts_item_edit_button);
+                } else {
+                    mCheckBox = (CheckBox) itemView.findViewById(R.id.accounts_item_check_box);
+                    mItemTextView = (TextView)itemView.findViewById(R.id.accounts_item_textview);
+                }
             }
         }
 
@@ -141,6 +159,8 @@ public class AccountsFragment extends Fragment {
 
         private RadioButton lastChecked = null;
         private int lastCheckedPosition = 0;
+
+        private boolean withCheckBox = false;
 
         RVAdapter(List<Account> items, AccountsFragment.OnAccountInteractionListener listener){
             this.items = items;
@@ -151,6 +171,15 @@ public class AccountsFragment extends Fragment {
             items = accounts;
         }
 
+        public void withCheckBox(boolean withCheckBox){
+            this.withCheckBox = withCheckBox;
+        }
+
+        @Override
+        public int getItemViewType(int position) {
+            return (withCheckBox ? 1 : 0);
+        }
+
         @Override
         public int getItemCount() {
             return items.size();
@@ -158,8 +187,14 @@ public class AccountsFragment extends Fragment {
 
         @Override
         public AccountViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-            View v = LayoutInflater.from(parent.getContext())
-                    .inflate(R.layout.fragment_accounts_item, parent, false);
+            View v;
+            if(viewType == 0){
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.fragment_accounts_item, parent, false);
+            } else {
+                v = LayoutInflater.from(parent.getContext())
+                        .inflate(R.layout.fragment_accounts_item_with_checkbox, parent, false);
+            }
 
             return new AccountViewHolder(v);
         }
@@ -169,39 +204,73 @@ public class AccountsFragment extends Fragment {
             accountViewHolder.mItem = items.get(position);
 
             String account = items.get(position).getLogin() + "@" + items.get(position).getServerName();
-            accountViewHolder.mItemView.setText(account);
-            if(items.get(position).getSelected() == 1){
-                Log.d("server", items.get(position).getServerName());
-                accountViewHolder.mItemView.setChecked(true);
-                lastChecked = accountViewHolder.mItemView;
-                lastCheckedPosition = position;
-            }
 
-            accountViewHolder.mItemView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    // lastChecked обрабатывается первее т.к. тот же аккаунт может быть нажат дважды
-                    if(lastChecked != null){
-                        lastChecked.setChecked(false);
-                        items.get(lastCheckedPosition).setSelected(0);
-                        AccountsFragment.this.onAccountInteraction(items.get(lastCheckedPosition));
-                    }
+            if(!withCheckBox){
+                accountViewHolder.mItemViewRadio.setText(account);
 
-                    accountViewHolder.mItemView.setChecked(true);
-                    accountViewHolder.mItem.setSelected(1);
-                    AccountsFragment.this.onAccountInteraction(accountViewHolder.mItem);
-
-                    lastChecked = accountViewHolder.mItemView;
+                if(items.get(position).getSelected() == 1){
+                    accountViewHolder.mItemViewRadio.setChecked(true);
+                    lastChecked = accountViewHolder.mItemViewRadio;
                     lastCheckedPosition = position;
                 }
-            });
 
-            accountViewHolder.mEditButton.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    mListener.onAccountEditButtonClicked(accountViewHolder.mItem);
-                }
-            });
+                accountViewHolder.mItemViewRadio.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        // lastChecked обрабатывается первее т.к. тот же аккаунт может быть нажат дважды
+                        if(lastChecked != null){
+                            lastChecked.setChecked(false);
+                            items.get(lastCheckedPosition).setSelected(0);
+                            AccountsFragment.this.onAccountInteraction(items.get(lastCheckedPosition));
+                        }
+
+                        accountViewHolder.mItemViewRadio.setChecked(true);
+                        accountViewHolder.mItem.setSelected(1);
+                        AccountsFragment.this.onAccountInteraction(accountViewHolder.mItem);
+
+                        lastChecked = accountViewHolder.mItemViewRadio;
+                        lastCheckedPosition = position;
+                    }
+                });
+
+                accountViewHolder.mEditButton.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(mListener != null){
+                            mListener.onAccountEditButtonClicked(accountViewHolder.mItem);
+                        }
+                    }
+                });
+            } else {
+                accountViewHolder.mItemTextView.setText(account);
+
+                accountViewHolder.mCheckBox.setChecked(false);
+                accountViewHolder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                    @Override
+                    public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                        if(isChecked){
+                            if(mListener != null){
+                                mListener.onAccountChecked(accountViewHolder.mItem);
+                            }
+                        } else {
+                            if(mListener != null){
+                                mListener.onAccountUnChecked(accountViewHolder.mItem);
+                            }
+                        }
+                    }
+                });
+
+                accountViewHolder.mItemTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if(!accountViewHolder.mCheckBox.isChecked()){
+                            accountViewHolder.mCheckBox.setChecked(true);
+                        } else {
+                            accountViewHolder.mCheckBox.setChecked(false);
+                        }
+                    }
+                });
+            }
 
             /*accountViewHolder.mView.setOnClickListener(new View.OnClickListener() {
                 @Override

@@ -183,7 +183,7 @@ public class AccountsDialogFragment extends DialogFragment {
                     Toast.makeText(getContext(), errorBeginning + " \"" + serverNameTitle + "\" " + errorEmptyField,
                             Toast.LENGTH_LONG).show();
                 } else {
-                    Pattern pServerName = Pattern.compile("(\\S+)@(\\S+\\.)(\\w+)");
+                    Pattern pServerName = Pattern.compile("(\\S+\\.)(\\w+)");
                     Matcher mServerName = pServerName.matcher(serverNameEdit.getText().toString());
                     if(mServerName.find()){
                         serverName = mServerName.group();
@@ -268,72 +268,6 @@ public class AccountsDialogFragment extends DialogFragment {
                 portEdit.setText(String.valueOf(account.getPort()));
             }
         }
-
-        /*View v;
-        if(!passwordProtected){
-            v = getActivity().getLayoutInflater().inflate(R.layout.fragment_dialog_muc_join, null);
-        } else {
-            v = getActivity().getLayoutInflater().inflate(R.layout.fragment_dialog_muc_join_with_password, null);
-            passwordView = (EditText) v.findViewById(R.id.join_muc_dialog_password);
-            passwordView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-                @Override
-                public void onFocusChange(View v, boolean hasFocus) {
-                    imm.showSoftInput(passwordView, InputMethodManager.SHOW_FORCED);
-                }
-            });
-            passwordView.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    imm.showSoftInput(passwordView, InputMethodManager.SHOW_FORCED);
-                }
-            });
-        }
-
-        mucIdView = (EditText) v.findViewById(R.id.join_muc_dialog_mucname);
-        mucIdView.setText(mucID);
-        mucIdView.setSelection(mucIdView.getText().length());
-        mucIdView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                imm.showSoftInput(mucIdView, InputMethodManager.SHOW_FORCED);
-            }
-        });
-        mucIdView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imm.showSoftInput(mucIdView, InputMethodManager.SHOW_FORCED);
-            }
-        });
-
-        nickView = (EditText) v.findViewById(R.id.join_muc_dialog_nick);
-        nickView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                imm.showSoftInput(nickView, InputMethodManager.SHOW_FORCED);
-            }
-        });
-        nickView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                imm.showSoftInput(nickView, InputMethodManager.SHOW_FORCED);
-            }
-        });
-
-        okButton = (Button) v.findViewById(R.id.join_muc_dialog_ok);
-        okButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(!passwordProtected){
-                    mListener.onSubmitJoinMucDialogInteraction(mucIdView.getText().toString(),
-                            nickView.getText().toString());
-                } else {
-                    mListener.onSubmitJoinMucDialogInteraction(mucIdView.getText().toString(),
-                            nickView.getText().toString(), passwordView.getText().toString());
-                }
-
-                dismiss();
-            }
-        });*/
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(v);

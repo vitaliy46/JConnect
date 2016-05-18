@@ -10,7 +10,6 @@
     <RadioButton
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="account@jabber.ru"
         android:textSize="18sp"
         android:layout_weight="1"
         android:id="@+id/accounts_item_radio_button" />
@@ -25,12 +24,6 @@
         android:background="@android:color/transparent"
         android:id="@+id/accounts_item_edit_button"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp" />
-
-    <CheckBox
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/accounts_item_check_box"
         android:layout_marginRight="5dp" />
 
 </LinearLayout>
