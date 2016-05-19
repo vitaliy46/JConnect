@@ -16,11 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class AccountsActivity extends AppCompatActivity implements AccountsFragment.OnAccountInteractionListener,
         AccountsDialogFragment.AccountsDialogListener{
@@ -90,9 +86,10 @@ public class AccountsActivity extends AppCompatActivity implements AccountsFragm
     AccountsFragment accountsFragment;
     AccountsDialogFragment accountsDialogFragment;
 
+    MenuItem cancelChoiseMenuItem;
+    MenuItem deleteChosenMenuItem;
+
     List<Account> checkedAccounts = new ArrayList<>();
-    //Set<Account> checkedAccounts2 = new HashSet<>();
-    //Map<String, Account> checkedAccounts3 = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,6 +144,8 @@ public class AccountsActivity extends AppCompatActivity implements AccountsFragm
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_accounts, menu);
+        cancelChoiseMenuItem = menu.findItem(R.id.accounts_menu_cancel_choise);
+        deleteChosenMenuItem = menu.findItem(R.id.accounts_menu_delete_chosen);
 
         return true;
     }
@@ -164,15 +163,21 @@ public class AccountsActivity extends AppCompatActivity implements AccountsFragm
                 break;
             case R.id.accounts_menu_choose:
                 accountsFragment.updateAccountsListViewWithCheckBox(true);
+                cancelChoiseMenuItem.setVisible(true);
+                deleteChosenMenuItem.setVisible(true);
                 break;
             case R.id.accounts_menu_cancel_choise:
                 accountsFragment.updateAccountsListViewWithCheckBox(false);
+                cancelChoiseMenuItem.setVisible(false);
+                deleteChosenMenuItem.setVisible(false);
                 checkedAccounts = new ArrayList<>();
                 break;
             case R.id.accounts_menu_delete_chosen:
                 xmppData.deleteAccounts(checkedAccounts);
                 accountsFragment.updateAccountsListViewWithCheckBox(false);
                 accountsFragment.updateAccountsList(xmppData.getAccounts());
+                cancelChoiseMenuItem.setVisible(false);
+                deleteChosenMenuItem.setVisible(false);
                 checkedAccounts = new ArrayList<>();
                 break;
             case R.id.accounts_menu_add:

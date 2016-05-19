@@ -10,27 +10,21 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
-import org.jivesoftware.smack.PresenceListener;
-import org.jivesoftware.smack.StanzaListener;
-import org.jivesoftware.smack.XMPPConnection;
-import org.jivesoftware.smack.filter.StanzaFilter;
-import org.jivesoftware.smack.iqrequest.IQRequestHandler;
-import org.jivesoftware.smack.packet.ExtensionElement;
-import org.jivesoftware.smack.packet.IQ;
-import org.jivesoftware.smack.packet.Presence;
-import org.jivesoftware.smack.packet.Stanza;
-import org.jivesoftware.smack.provider.ProviderManager;
 import org.jivesoftware.smack.MessageListener;
+import org.jivesoftware.smack.PresenceListener;
 import org.jivesoftware.smack.SmackException;
+import org.jivesoftware.smack.StanzaListener;
 import org.jivesoftware.smack.XMPPException;
 import org.jivesoftware.smack.chat.Chat;
 import org.jivesoftware.smack.chat.ChatManager;
 import org.jivesoftware.smack.chat.ChatManagerListener;
 import org.jivesoftware.smack.chat.ChatMessageListener;
+import org.jivesoftware.smack.filter.StanzaFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.jivesoftware.smack.packet.Presence;
+import org.jivesoftware.smack.packet.Stanza;
 import org.jivesoftware.smack.roster.Roster;
 import org.jivesoftware.smack.roster.RosterEntry;
 import org.jivesoftware.smack.roster.packet.RosterPacket;
@@ -38,27 +32,11 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.bookmarks.BookmarkManager;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
-import org.jivesoftware.smackx.disco.NodeInformationProvider;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
-import org.jivesoftware.smackx.disco.packet.DiscoverInfo;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
-import org.jivesoftware.smackx.muc.InvitationListener;
-import org.jivesoftware.smackx.muc.InvitationRejectionListener;
-import org.jivesoftware.smackx.muc.MUCAffiliation;
-import org.jivesoftware.smackx.muc.MUCNotJoinedException;
-import org.jivesoftware.smackx.muc.MUCRole;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
-import org.jivesoftware.smackx.muc.Occupant;
-import org.jivesoftware.smackx.muc.ParticipantStatusListener;
 import org.jivesoftware.smackx.muc.RoomInfo;
-import org.jivesoftware.smackx.muc.packet.MUCUser;
-import org.jivesoftware.smackx.pep.packet.PEPEvent;
-import org.jivesoftware.smackx.pep.packet.PEPItem;
-import org.jivesoftware.smackx.xdata.Form;
-import org.jivesoftware.smackx.xdata.packet.DataForm;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -89,9 +67,6 @@ public class XmppService extends Service {
     private final int TO_DISCONNECT = 3;
     Connection cn;
 
-    // Контакты
-    //List<Contact> ContactList = new ArrayList<>();
-
     // Чаты
     ChatManager chatManager;
     Map<String, Chat> chatMap = new HashMap<>();
@@ -109,6 +84,7 @@ public class XmppService extends Service {
 
     // Обзор сервисов
     ServiceDiscoveryManager serviceDiscoveryManager = null;
+    String mainService = "";
 
     // Синглетон для доступа к данным
     XmppData xmppData = XmppData.getInstance();
@@ -127,7 +103,7 @@ public class XmppService extends Service {
 
                 if("service_discover".equals(msgBundle.getString("activity"))) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("parent_entity_id", "jabber.ru");
+                    bundle.putString("parent_entity_id", mainService);
                     XmppService.this.sendMessage(bundle);
                 }
             }
@@ -229,13 +205,6 @@ public class XmppService extends Service {
                 .build();
         startForeground(6711, mNotification);
 
-        //long accountID = xmppData.insertAccount("p.ru", "vitaliy446", ";tkfnby1", 5222, 0);
-        //Log.d("accountID", String.valueOf(accountID));
-        //xmppData.getAccounts();
-        //xmppData.getSelectedAccount();
-        //xmppData.updateAccount();
-        //xmppData.deleteAccount(1);
-
         return Service.START_STICKY;
     }
 
@@ -306,137 +275,115 @@ public class XmppService extends Service {
                 e.printStackTrace();
             }
 
-            //ProviderManager.addExtensionProvider("captcha", "urn:xmpp:captcha", new CaptchaExtension.Provider());
-            //ProviderManager.addExtensionProvider("data", "urn:xmpp:bob", new BobExtension.Provider());
-            //CaptchaExtension
+            Account account = xmppData.getSelectedAccount();
 
-            // Конфигурирование соединения
-            /*XMPPTCPConnectionConfiguration configBuilder = XMPPTCPConnectionConfiguration.builder()
-                .setUsernameAndPassword("", "")
-                .setResource("")
-                .setServiceName("")
-                .setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible)
-                .setCustomSSLContext(sc)
-                .build();*/
+            if(account != null){
+                XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
+                configBuilder.setUsernameAndPassword(account.getLogin(), account.getPassword());
+                configBuilder.setResource(account.getServerName());
+                configBuilder.setServiceName(account.getServerName());
+                configBuilder.setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible);
+                configBuilder.setCustomSSLContext(sc);
 
-            XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-            configBuilder.setUsernameAndPassword("vitaliy446", ";tkfnby1");
-            configBuilder.setResource("jabber.ru");
-            configBuilder.setServiceName("jabber.ru");
-            configBuilder.setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible);
-            configBuilder.setCustomSSLContext(sc);
+                connection = new XMPPTCPConnection(configBuilder.build());
+                connection.setPacketReplyTimeout(10000);
 
-            /*XMPPTCPConnectionConfiguration.Builder configBuilder = XMPPTCPConnectionConfiguration.builder();
-            configBuilder.setUsernameAndPassword("", "");
-            configBuilder.setResource("");
-            configBuilder.setServiceName("");
-            configBuilder.setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible);
-            configBuilder.setCustomSSLContext(sc);*/
-
-            /*XMPPTCPConnectionConfiguration configBuilder = XMPPTCPConnectionConfiguration.builder()
-                    .setUsernameAndPassword("", "")
-                    .setResource("")
-                    .setServiceName("")
-                    .setSecurityMode(XMPPTCPConnectionConfiguration.SecurityMode.ifpossible)
-                    .setCustomSSLContext(sc)
-                    .build();*/
-
-            connection = new XMPPTCPConnection(configBuilder.build());
-            //connection = new XMPPTCPConnection(configBuilder);
-
-            connection.setPacketReplyTimeout(10000);
-
-            // Соединение с jabber сервером
-            try {
-                connection.connect();
-            } catch (SmackException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (XMPPException e) {
-                e.printStackTrace();
-            }
-
-            // Авторизация
-            try {
-                connection.login();
-            } catch (XMPPException e) {
-                e.printStackTrace();
-            } catch (SmackException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            if(connection.isConnected() && connection.isAuthenticated()){
-                // Регистрация слушателей
-                chatManager = ChatManager.getInstanceFor(connection);
-                chatManager.addChatListener(new ChatManagerListener() {
-                    @Override
-                    public void chatCreated(Chat chat, boolean b) {
-                        Pattern pJid = Pattern.compile("(\\S+)@(\\S+\\.)(\\w+)");
-                        Matcher m = pJid.matcher(chat.getParticipant());
-                        String jid = null;
-                        if(m.find()){
-                            jid = m.group();
-                        }
-                        final String finalJid = jid;
-
-                        //XmppService.this.chat = chat;
-                        if(chatMap.get(jid) == null) {
-                            chatMap.put(jid, chat);
-                        }
-
-                        chat.addMessageListener(new ChatMessageListener() {
-                            @Override
-                            public void processMessage(Chat chat, Message message) {
-                                xmppData.setMessagesList(finalJid, finalJid, message.getBody());
-
-                                android.os.Message chatMsg = new android.os.Message();
-
-                                Bundle bundle = new Bundle();
-                                bundle.putString("recieve", finalJid);
-                                chatMsg.setData(bundle);
-
-                                try {
-                                    replyMessenger.send(chatMsg);
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        });
-                    }
-                });
-
+                // Соединение с jabber сервером
                 try {
-                    Roster.getInstanceFor(connection).reloadAndWait();
-                } catch (SmackException.NotLoggedInException e) {
+                    connection.connect();
+                } catch (SmackException e) {
                     e.printStackTrace();
-                } catch (SmackException.NotConnectedException e) {
+                } catch (IOException e) {
                     e.printStackTrace();
-                } catch (InterruptedException e) {
+                } catch (XMPPException e) {
                     e.printStackTrace();
                 }
 
-                XmppService.this.updateContactList();
+                // Авторизация
+                try {
+                    connection.login();
+                } catch (XMPPException e) {
+                    e.printStackTrace();
+                } catch (SmackException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
 
-                // Менеджер конференций
-                manager = MultiUserChatManager.getInstanceFor(connection);
-                // Менеджер сервисов
-                serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
+                if(connection.isConnected() && connection.isAuthenticated()){
+                    // Регистрация слушателей
+                    chatManager = ChatManager.getInstanceFor(connection);
+                    chatManager.addChatListener(new ChatManagerListener() {
+                        @Override
+                        public void chatCreated(Chat chat, boolean b) {
+                            Pattern pJid = Pattern.compile("(\\S+)@(\\S+\\.)(\\w+)");
+                            Matcher m = pJid.matcher(chat.getParticipant());
+                            String jid = null;
+                            if(m.find()){
+                                jid = m.group();
+                            }
+                            final String finalJid = jid;
 
-                new Thread(new Runnable() {
-                    @Override
-                    public void run() {
-                        while(connection.isConnected()){
-                            try {
-                                Thread.sleep(60000);
-                            } catch (InterruptedException e) {
-                                e.printStackTrace();
+                            if(chatMap.get(jid) == null) {
+                                chatMap.put(jid, chat);
+                            }
+
+                            chat.addMessageListener(new ChatMessageListener() {
+                                @Override
+                                public void processMessage(Chat chat, Message message) {
+                                    xmppData.setMessagesList(finalJid, finalJid, message.getBody());
+
+                                    android.os.Message chatMsg = new android.os.Message();
+
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("recieve", finalJid);
+                                    chatMsg.setData(bundle);
+
+                                    try {
+                                        replyMessenger.send(chatMsg);
+                                    } catch (RemoteException e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                        }
+                    });
+
+                    try {
+                        Roster.getInstanceFor(connection).reloadAndWait();
+                    } catch (SmackException.NotLoggedInException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NotConnectedException e) {
+                        e.printStackTrace();
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    XmppService.this.updateContactList();
+
+                    // Менеджер конференций
+                    manager = MultiUserChatManager.getInstanceFor(connection);
+                    // Менеджер сервисов
+                    serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
+                    mainService = account.getServerName();
+
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            while(connection != null && connection.isConnected()){
+                                try {
+                                    Thread.sleep(60000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
                             }
                         }
-                    }
-                }).start();
+                    }).start();
+                }
+            } else {
+                Bundle bundle = new Bundle();
+                bundle.putString("account", "not_selected");
+                sendMessage(bundle);
             }
         }
 
@@ -445,6 +392,7 @@ public class XmppService extends Service {
             if(connection != null && connection.isConnected()){
                 connection.disconnect();
                 connection = null;
+                mainService = "";
             }
         }
     }

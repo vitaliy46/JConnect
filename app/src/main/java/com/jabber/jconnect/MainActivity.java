@@ -126,6 +126,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                     fragmentContact.updateContacts(xmppData.getContactList());
                 }
             }
+
+            if("not_selected".equals(bundle.getString("account"))){
+                String errorAccountNotSelected = getResources().getString(R.string.account_not_selected);
+                Toast.makeText(getApplicationContext(), errorAccountNotSelected, Toast.LENGTH_LONG).show();
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////

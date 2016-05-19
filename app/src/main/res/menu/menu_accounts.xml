@@ -19,12 +19,14 @@
         android:id="@+id/accounts_menu_cancel_choise"
         android:orderInCategory="0"
         android:title="@string/accounts_menu_cancel_choise"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText"
+        android:visible="false" />
 
     <item
         android:id="@+id/accounts_menu_delete_chosen"
         android:orderInCategory="0"
         android:title="@string/accounts_menu_delete_chosen"
-        app:showAsAction="ifRoom|withText" />
+        app:showAsAction="ifRoom|withText"
+        android:visible="false" />
 
 </menu>

@@ -12,6 +12,9 @@
     <string name="menu_muc_participant_list">Участники</string>
     <string name="menu_accounts">Учетные записи</string>
 
+    <!-- Main Activity Toasts -->
+    <string name="account_not_selected">Для подключения необходмо выбрать учетную запись</string>
+
     <!-- Muc menu -->
     <string name="muc_menu_add_bookmark">В закладки</string>
 

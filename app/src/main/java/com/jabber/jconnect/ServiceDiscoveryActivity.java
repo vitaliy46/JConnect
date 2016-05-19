@@ -202,7 +202,7 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
             case R.id.menu_service_discover_join_muc:
                 if(mucIsMembersOnly){
                     String membersOnlyMsg = "Комната " + mucEntity + " только для зарегитсрированных участников";
-                    //Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
                 }
 
                 joinMucDialogFragment = JoinMucDialogFragment.newInstance(mucEntity, mucIsPasswordProtected);
