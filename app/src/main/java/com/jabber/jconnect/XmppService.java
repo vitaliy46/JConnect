@@ -379,10 +379,16 @@ public class XmppService extends Service {
                             }
                         }
                     }).start();
+                } else {
+                    connection.disconnect();
+                    connection = null;
+                    Bundle bundle = new Bundle();
+                    bundle.putString("error", "not_authenticated");
+                    sendMessage(bundle);
                 }
             } else {
                 Bundle bundle = new Bundle();
-                bundle.putString("account", "not_selected");
+                bundle.putString("error", "account_not_selected");
                 sendMessage(bundle);
             }
         }
@@ -840,30 +846,32 @@ public class XmppService extends Service {
     }
 
     private void getServiceDiscoverItems(final String parentEntityID){
-        if(serviceDiscoveryManager != null){
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    DiscoverItems discoverItems = null;
-                    try {
-                        discoverItems = serviceDiscoveryManager.discoverItems(parentEntityID);
-                    } catch (SmackException.NoResponseException e) {
-                        e.printStackTrace();
-                    } catch (XMPPException.XMPPErrorException e) {
-                        e.printStackTrace();
-                    } catch (SmackException.NotConnectedException e) {
-                        e.printStackTrace();
-                    }
+        if(connection != null && connection.isAuthenticated()){
+            if(serviceDiscoveryManager != null){
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        DiscoverItems discoverItems = null;
+                        try {
+                            discoverItems = serviceDiscoveryManager.discoverItems(parentEntityID);
+                        } catch (SmackException.NoResponseException e) {
+                            e.printStackTrace();
+                        } catch (XMPPException.XMPPErrorException e) {
+                            e.printStackTrace();
+                        } catch (SmackException.NotConnectedException e) {
+                            e.printStackTrace();
+                        }
 
-                    if(discoverItems != null){
-                        xmppData.setServiceDiscoverItems(discoverItems.getItems());
+                        if(discoverItems != null){
+                            xmppData.setServiceDiscoverItems(discoverItems.getItems());
 
-                        Bundle bundle = new Bundle();
-                        bundle.putString("service_discover_items", "loaded");
-                        sendMessage(bundle);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("service_discover_items", "loaded");
+                            sendMessage(bundle);
+                        }
                     }
-                }
-            }).start();
+                }).start();
+            }
         }
     }
 }

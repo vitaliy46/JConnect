@@ -1,18 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/accounts_view_layout"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:paddingTop="5dp"
-    android:paddingBottom="5dp">
+    android:paddingBottom="5dp"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?android:selectableItemBackground"
+    android:addStatesFromChildren="true">
 
     <RadioButton
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:textSize="18sp"
         android:layout_weight="1"
-        android:id="@+id/accounts_item_radio_button" />
+        android:id="@+id/accounts_item_radio_button"/>
 
     <Button
         style="?android:attr/buttonStyleSmall"
@@ -24,6 +29,6 @@
         android:background="@android:color/transparent"
         android:id="@+id/accounts_item_edit_button"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp" />
+        android:layout_marginRight="5dp"/>
 
 </LinearLayout>

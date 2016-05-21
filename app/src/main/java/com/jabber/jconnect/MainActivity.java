@@ -127,9 +127,25 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 }
             }
 
-            if("not_selected".equals(bundle.getString("account"))){
+            if("not_selected".equals(bundle.getString("error"))){
                 String errorAccountNotSelected = getResources().getString(R.string.account_not_selected);
                 Toast.makeText(getApplicationContext(), errorAccountNotSelected, Toast.LENGTH_LONG).show();
+            }
+
+            String error = bundle.getString("error");
+            if(error != null){
+                switch(error){
+                    case "account_not_selected":
+                        error = getResources().getString(R.string.account_not_selected);
+                        break;
+                    case "not_authenticated":
+                        error = getResources().getString(R.string.not_authenticated);
+                        break;
+                    default:
+                        break;
+                }
+
+                Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
             }
         }
     }

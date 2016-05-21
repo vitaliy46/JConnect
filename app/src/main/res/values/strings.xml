@@ -14,6 +14,7 @@
 
     <!-- Main Activity Toasts -->
     <string name="account_not_selected">Для подключения необходмо выбрать учетную запись</string>
+    <string name="not_authenticated">Не авторизован</string>
 
     <!-- Muc menu -->
     <string name="muc_menu_add_bookmark">В закладки</string>

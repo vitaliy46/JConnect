@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -38,6 +39,8 @@ public class AccountsFragment extends Fragment {
 
     RVAdapter adapter;
     List<Account> items;
+
+    LinearLayout linearLayout;
 
     OnAccountInteractionListener mListener;
 
@@ -135,6 +138,7 @@ public class AccountsFragment extends Fragment {
     public class RVAdapter extends RecyclerView.Adapter<RVAdapter.AccountViewHolder>{
         public class AccountViewHolder extends RecyclerView.ViewHolder {
             public final View mView;
+            public LinearLayout linearLayout;
             public RadioButton mItemViewRadio = null;
             public TextView mItemTextView = null;
             public Button mEditButton = null;
@@ -151,6 +155,8 @@ public class AccountsFragment extends Fragment {
                     mCheckBox = (CheckBox) itemView.findViewById(R.id.accounts_item_check_box);
                     mItemTextView = (TextView)itemView.findViewById(R.id.accounts_item_textview);
                 }
+
+                linearLayout = (LinearLayout) itemView.findViewById(R.id.accounts_view_layout);
             }
         }
 
