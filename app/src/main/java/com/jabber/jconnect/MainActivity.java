@@ -1,10 +1,13 @@
 package com.jabber.jconnect;
 
+import android.app.ActionBar;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -14,6 +17,8 @@ import android.os.RemoteException;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.res.ResourcesCompat;
+import android.support.v4.graphics.drawable.DrawableCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -193,7 +198,6 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     Menu menu;
 
     // Application menu drawer
-    private ListView mDrawerListView;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
@@ -212,6 +216,34 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             showMucActivity = savedInstanceState.getBoolean("show_muc_activity");
             sendMsg = savedInstanceState.getString("send_msg");
         }
+
+        final android.support.v7.app.ActionBar actionBar = getSupportActionBar();
+        actionBar.setHomeButtonEnabled(true);
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_drawer, null);
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, Color.WHITE);
+        actionBar.setHomeAsUpIndicator(drawable);
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.main_activity_drawer_layout);
+
+        mDrawerToggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, 0, 0) {
+
+            /** Called when a drawer has settled in a completely closed state. */
+            public void onDrawerClosed(View view) {
+                super.onDrawerClosed(view);
+                Toast.makeText(getApplicationContext(), "closed", Toast.LENGTH_SHORT).show();
+            }
+
+            /** Called when a drawer has settled in a completely open state. */
+            public void onDrawerOpened(View drawerView) {
+                super.onDrawerOpened(drawerView);
+                Toast.makeText(getApplicationContext(), "opened", Toast.LENGTH_SHORT).show();
+            }
+        };
+
+        mDrawerLayout.addDrawerListener(mDrawerToggle);
 
         // Подключение фрагментов
         fm = getSupportFragmentManager();
@@ -240,6 +272,19 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         if(selectedMucId != null){
             showMucChat();
         }
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     // Сохранение параметров для восстановления активности

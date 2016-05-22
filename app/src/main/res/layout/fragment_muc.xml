@@ -2,16 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:clickable="true"
+    android:focusable="true"
+    android:background="?android:selectableItemBackground"
+    android:addStatesFromChildren="true">
 
-    <Button
-        style="?android:attr/borderlessButtonStyle"
+    <TextView
         android:id="@+id/muc"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textAppearance="?attr/textAppearanceListItem"
         android:textAlignment="gravity"
+        android:gravity="left"
+        android:textAppearance="?attr/textAppearanceListItem"
         android:textSize="18sp"
-        android:gravity="left"/>
+        android:paddingTop="10dp"
+        android:paddingBottom="10dp" />
 
 </LinearLayout>

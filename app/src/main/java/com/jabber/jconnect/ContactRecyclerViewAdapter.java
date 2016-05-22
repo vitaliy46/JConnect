@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.jabber.jconnect.ContactFragment.OnListFragmentInteractionListener;
 
@@ -65,13 +66,13 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
 
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
-        public final Button mContentView;
+        public final TextView mContentView;
         public Contact mItem;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
-            mContentView = (Button) view.findViewById(R.id.contact);
+            mContentView = (TextView) view.findViewById(R.id.contact);
             mContentView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
