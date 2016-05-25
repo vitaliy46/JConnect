@@ -14,14 +14,15 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
 import android.widget.Toast;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
 
-public class ServiceDiscoveryActivity extends AppCompatActivity implements
-        ServiceDiscoveryFragment.OnServiceDiscoverFragmentInteractionListener, JoinMucDialogFragment.JoinMucDialogListener {
+import java.util.ArrayList;
+import java.util.List;
+
+public class BookmarksActivity extends AppCompatActivity implements BookmarksFragment.OnBookmarkInteractionListener,
+        BookmarksDialogFragment.BookmarksDialogListener {
 
     /***********************************************************************************************
      * Реализация связи с сервисом через Messenger
@@ -75,34 +76,8 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
 
-            if(bundle.getString("parent_entity_id") != null){
-                if(serviceDiscoveryFragment != null && parentEntityID == null){
-                    serviceDiscoveryFragment.setParentDefaultEntityIDView(bundle.getString("parent_entity_id"));
-                }
-            }
-
-            if("loaded".equals(bundle.getString("service_discover_items"))){
-                if(serviceDiscoveryFragment != null){
-                    serviceDiscoveryFragment.updateServiceDiscoverItemsList(xmppData.getServiceDiscoverItems());
-                }
-            }
-
-            if(bundle.getString("recieve_captcha") != null){
-                captchaDialogFragment = CaptchaDialogFragment.newInstance(bundle.getString("recieve_captcha"));
-                captchaDialogFragment.show(fm, "captcha_dialog_fragment");
-            }
-
-            if(bundle.getString("muc_is_password_protected") != null){
-                mucIsPasswordProtected = true;
-            }
-
-            if(bundle.getString("muc_is_members_only") != null){
-                mucIsMembersOnly = true;
-            }
-
-            if(bundle.getString("not_authorized_muc_is_members_only") != null){
-                String membersOnlyMsg = "Комната " + mucEntity + " только для зарегистрированных участников";
-                Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
+            if("update".equals(bundle.getString("bookmark"))){
+                BookmarksActivity.this.updateBookmarksList();
             }
 
             if(bundle.getString("muc_joined") != null){
@@ -125,6 +100,17 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
 
                 Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
             }
+
+            if(bundle.getString("not_authorized_muc_is_members_only") != null){
+                String membersOnlyMsg = "Комната " + bundle.getString("not_authorized_muc_is_members_only") +
+                        " только для зарегистрированных участников";
+                Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
+            }
+
+            if(bundle.getString("recieve_captcha") != null){
+                captchaDialogFragment = CaptchaDialogFragment.newInstance(bundle.getString("recieve_captcha"));
+                captchaDialogFragment.show(fm, "captcha_dialog_fragment");
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -132,25 +118,22 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
     // Синглетон для доступа к данным
     XmppData xmppData = XmppData.getInstance();
 
-    String parentEntityID = null;
-
     FragmentManager fm;
-    ServiceDiscoveryFragment serviceDiscoveryFragment;
+
+    BookmarksFragment bookmarksFragment;
+    BookmarksDialogFragment bookmarksDialogFragment;
+
+    MenuItem cancelChoiseMenuItem;
+    MenuItem deleteChosenMenuItem;
+
+    List<BookmarkedConference> checkedBookmarks = new ArrayList<>();
 
     CaptchaDialogFragment captchaDialogFragment;
-
-    JoinMucDialogFragment joinMucDialogFragment;
-    boolean mucIsPasswordProtected = false;
-    boolean mucIsMembersOnly = false;
-
-    MenuItem joinMucMenuItem;
-    String mucEntity;
-    Pattern pMucEntity = Pattern.compile("(\\S+)@(conference)(\\.)(\\S+\\.)(\\w+)");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_service_discovery);
+        setContentView(R.layout.activity_accounts);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -159,14 +142,13 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
 
         if(savedInstanceState != null) {
             // Восстановление значений сохраненных в savedInstanceState
-            parentEntityID = savedInstanceState.getString("parent_entity_id");
         }
 
         fm = getSupportFragmentManager();
-        serviceDiscoveryFragment = (ServiceDiscoveryFragment) fm.findFragmentById(R.id.fragmentContainer);
-        if (serviceDiscoveryFragment == null) {
-            serviceDiscoveryFragment = ServiceDiscoveryFragment.newInstance(parentEntityID);
-            fm.beginTransaction().add(R.id.fragmentContainer, serviceDiscoveryFragment).commit();
+        bookmarksFragment = (BookmarksFragment) fm.findFragmentById(R.id.fragmentContainer);
+        if (bookmarksFragment == null) {
+            bookmarksFragment = BookmarksFragment.newInstance();
+            fm.beginTransaction().add(R.id.fragmentContainer, bookmarksFragment).commit();
         }
     }
 
@@ -174,7 +156,6 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
     @Override
     protected void onSaveInstanceState(Bundle state) {
         super.onSaveInstanceState(state);
-        state.putString("parent_entity_id", parentEntityID);
     }
 
     @Override
@@ -196,15 +177,14 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-
-        xmppData.clearServiceDiscoverItems();
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_service_discover, menu);
-        joinMucMenuItem = menu.findItem(R.id.menu_service_discover_join_muc);
+        getMenuInflater().inflate(R.menu.menu_bookmarks, menu);
+        cancelChoiseMenuItem = menu.findItem(R.id.bookmarks_cancel_choise);
+        deleteChosenMenuItem = menu.findItem(R.id.bookmarks_delete_chosen);
 
         return true;
     }
@@ -220,15 +200,33 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
             case android.R.id.home:
                 onBackPressed();
                 break;
-            case R.id.menu_service_discover_join_muc:
-                if(mucIsMembersOnly){
-                    String membersOnlyMsg = "Комната " + mucEntity + " только для зарегитсрированных участников";
-                    Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
-                }
+            case R.id.bookmarks_menu_choose:
+                bookmarksFragment.updateBookmarksListViewWithCheckBox(true);
+                cancelChoiseMenuItem.setVisible(true);
+                deleteChosenMenuItem.setVisible(true);
+                break;
+            case R.id.bookmarks_cancel_choise:
+                bookmarksFragment.updateBookmarksListViewWithCheckBox(false);
+                cancelChoiseMenuItem.setVisible(false);
+                deleteChosenMenuItem.setVisible(false);
+                checkedBookmarks = new ArrayList<>();
+                break;
+            case R.id.bookmarks_delete_chosen:
+                xmppData.setCheckedBookmarks(checkedBookmarks);
 
-                joinMucDialogFragment = JoinMucDialogFragment.newInstance(mucEntity, mucIsPasswordProtected);
-                joinMucDialogFragment.show(fm, "join_muc_dialog_fragment");
+                bookmarksFragment.updateBookmarksListViewWithCheckBox(false);
+                cancelChoiseMenuItem.setVisible(false);
+                deleteChosenMenuItem.setVisible(false);
 
+                checkedBookmarks = new ArrayList<>();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("bookmark", "delete");
+                sendMessage(bundle);
+                break;
+            case R.id.bookmarks_menu_add:
+                bookmarksDialogFragment = BookmarksDialogFragment.newInstance(BookmarksDialogFragment.NEW_BOOKMARK);
+                bookmarksDialogFragment.show(fm, "bokmarks_dialog_fragment");
                 break;
             default:
                 break;
@@ -237,72 +235,48 @@ public class ServiceDiscoveryActivity extends AppCompatActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    private void joinMuc(String mucID, String nick, String password){
+    public void updateBookmarksList(){
+        bookmarksFragment.updateBookmarksList(xmppData.getBookmarkedConferenceList());
+    }
+
+    // Реализация методов mListener в BookmarksFragment
+    @Override
+    public void onBookmarkInteraction(BookmarkedConference bookmark) {
         Bundle b = new Bundle();
-        b.putString("join_muc", mucID);
-        b.putString("join_muc_nick", nick);
-        b.putString("join_muc_password", password);
+        b.putString("join_muc", bookmark.getJid());
+        b.putString("join_muc_nick", bookmark.getNickname());
+        b.putString("join_muc_password", bookmark.getPassword());
         sendMessage(b);
     }
 
     @Override
-    public void onServiceDiscoverRequest(String parentEntityID) {
-        this.parentEntityID = parentEntityID;
+    public void onBookmarkChecked(BookmarkedConference bookmark) {
+        checkedBookmarks.add(bookmark);
+    }
 
-        Matcher m = pMucEntity.matcher(parentEntityID);
-        if(m.find()){
-            mucEntity = m.group();
+    @Override
+    public void onBookmarkUnChecked(BookmarkedConference bookmark) {
+        checkedBookmarks.remove(bookmark);
+    }
 
-            mucIsPasswordProtected = false;
-            mucIsMembersOnly = false;
-            Bundle bundle = new Bundle();
-            bundle.putString("request_muc_protection_info", mucEntity);
-            sendMessage(bundle);
+    @Override
+    public void onBookmarkEditButtonClicked(BookmarkedConference bookmarkedConference) {
+        bookmarksDialogFragment = BookmarksDialogFragment.newInstance(bookmarkedConference,
+                BookmarksDialogFragment.EDIT_BOOKMARK);
+        bookmarksDialogFragment.show(fm, "bookmarks_dialog_fragment");
+    }
 
-            joinMucMenuItem.setVisible(true);
-        } else {
-            joinMucMenuItem.setVisible(false);
-        }
-
+    // Реализация методов mListener в BookmarksDialogFragment
+    @Override
+    public void onBookmarkSave(String jid, String name, String nick, String password) {
         Bundle bundle = new Bundle();
-        bundle.putString("service_discover_request", parentEntityID);
+        bundle.putString("bookmark", "save");
+        bundle.putString("jid", jid);
+        bundle.putString("name", name);
+        bundle.putString("nick", nick);
+        bundle.putString("password", password);
         sendMessage(bundle);
-    }
 
-    @Override
-    public void onServiceDiscoverInteraction(String itemID) {
-        this.parentEntityID = itemID;
-        serviceDiscoveryFragment.setParentDefaultEntityIDView(itemID);
-        xmppData.clearServiceDiscoverItems();
-        serviceDiscoveryFragment.updateServiceDiscoverItemsList(xmppData.getServiceDiscoverItems());
-
-        Matcher m = pMucEntity.matcher(itemID);
-        if(m.find()){
-            mucEntity = m.group();
-
-            mucIsPasswordProtected = false;
-            mucIsMembersOnly = false;
-            Bundle bundle = new Bundle();
-            bundle.putString("request_muc_protection_info", mucEntity);
-            sendMessage(bundle);
-
-            joinMucMenuItem.setVisible(true);
-        } else {
-            joinMucMenuItem.setVisible(false);
-        }
-
-        Bundle bundle = new Bundle();
-        bundle.putString("service_discover_request", parentEntityID);
-        sendMessage(bundle);
-    }
-
-    @Override
-    public void onSubmitJoinMucDialogInteraction(String MucID, String nick) {
-        joinMuc(MucID, nick, null);
-    }
-
-    @Override
-    public void onSubmitJoinMucDialogInteraction(String MucID, String nick, String password) {
-        joinMuc(MucID, nick, password);
+        bookmarksDialogFragment.dismiss();
     }
 }

@@ -10,6 +10,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,7 +30,7 @@ public class MucFragment extends Fragment {
     private OnMucListFragmentInteractionListener mListener;
 
     MucRecyclerViewAdapter mrvAdapter;
-    private List<String> data = new ArrayList<>();
+    private List<MultiUserChat> data = new ArrayList<>();
 
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
@@ -114,10 +116,10 @@ public class MucFragment extends Fragment {
      */
     public interface OnMucListFragmentInteractionListener {
         // TODO: Update argument type and name
-        void onMucListFragmentInteraction(String item);
+        void onMucListFragmentInteraction(MultiUserChat item);
     }
 
-    public void updateMucList(List<String> d){
+    public void updateMucList(List<MultiUserChat> d){
         mrvAdapter.updateValues(d);
         mrvAdapter.notifyDataSetChanged();
     }

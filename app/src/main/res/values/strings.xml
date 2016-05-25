@@ -6,20 +6,30 @@
     <string name="menu_exit">Выйти</string>
     <string name="menu_connect">Соединение</string>
     <string name="menu_disconnect">Отключиться</string>
-    <string name="menu_leave_muc">Покинуть комнату</string>
     <string name="menu_bookmarks_muc">Закладки</string>
     <string name="menu_service_discover">Обзор сервисов</string>
-    <string name="menu_muc_participant_list">Участники</string>
     <string name="menu_accounts">Учетные записи</string>
+
+    <string name="menu_muc_participant_list">Участники</string>
+    <string name="menu_leave_muc">Покинуть комнату</string>
+    <string name="menu_add_bookmark">В закладки</string>
 
     <!-- Main Activity Toasts -->
     <string name="account_not_selected">Для подключения необходмо выбрать учетную запись</string>
     <string name="not_authenticated">Не авторизован</string>
+    <string name="muc_joined">вход выполнен</string>
+    <string name="bookmark_added_begin">Комната</string>
+    <string name="bookmark_added_end">добавлена в закладки</string>
 
     <!-- Main Activity Drawer -->
     <string name="main_activity_drawer_title">Главное меню</string>
+    <string name="main_activity_drawer_menu_exit">Выйти</string>
+    <string name="main_activity_drawer_menu_accounts">Учетные записи</string>
+    <string name="main_activity_drawer_menu_bookmarks">Закладки</string>
+    <string name="main_activity_drawer_menu_service_discover">Обзор сервисов</string>
 
     <!-- Muc menu -->
+    <string name="muc_menu_leave_muc">Покинуть комнату</string>
     <string name="muc_menu_add_bookmark">В закладки</string>
 
     <!-- Service discover menu -->
@@ -60,8 +70,26 @@
     <!-- Service discover fragment -->
     <string name="service_discover_button">Обзор</string>
 
+    <!-- Bookmarks -->
+    <string name="bookmarks_title">Закладки</string>
+    <string name="bookmarks_menu_choose">Выбрать</string>
+    <string name="bookmarks_menu_add">Добавить</string>
+    <string name="bookmarks_item_edit_button">Изменить</string>
+    <string name="bookmarks_delete_chosen">Удалить</string>
+    <string name="bookmarks_cancel_choise">Отмена</string>
+
     <!-- Bookmarks dialog fragment -->
-    <string name="bookmarks_dialog_title">Закладки</string>
+    <string name="bookmarks_dialog_add_title">Добавить в закладки</string>
+    <string name="bookmarks_dialog_edit_title">Изменить закладку</string>
+    <string name="bookmarks_dialog_jid">Адрес комнаты</string>
+    <string name="bookmarks_dialog_name">Имя комнаты</string>
+    <string name="bookmarks_dialog_nick">Ник</string>
+    <string name="bookmarks_dialog_password">Пароль</string>
+    <string name="bookmarks_dialog_submit_button">OK</string>
+    <string name="bookmarks_dialog_cancel_button">Отмена</string>
+    <string name="bookmarks_dialog_field_error_beginning">Поле</string>
+    <string name="bookmarks_dialog_empty_field_error">не должно быть пустым</string>
+    <string name="bookmarks_dialog_room_address_field_error">должно иметь формат room@conference.server.com</string>
 
     <!-- Captcha dialog fragment -->
     <string name="captcha_dialog_title">Для входа в комнату группы необходимо пройти проверку Captcha:</string>

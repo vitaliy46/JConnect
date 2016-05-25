@@ -1,0 +1,26 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.jabber.jconnect.MainActivity">
+
+    <group
+        android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/main_activity_drawer_menu_service_discover"
+            android:title="@string/main_activity_drawer_menu_service_discover" />
+
+        <item
+            android:id="@+id/main_activity_drawer_menu_bookmarks"
+            android:title="@string/main_activity_drawer_menu_bookmarks" />
+
+        <item
+            android:id="@+id/main_activity_drawer_menu_accounts"
+            android:title="@string/main_activity_drawer_menu_accounts" />
+
+        <item
+            android:id="@+id/main_activity_drawer_menu_exit"
+            android:title="@string/main_activity_drawer_menu_exit" />
+
+    </group>
+
+</menu>

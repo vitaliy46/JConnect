@@ -10,6 +10,8 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
+import android.widget.Toast;
 
 import org.jivesoftware.smack.AbstractXMPPConnection;
 import org.jivesoftware.smack.MessageListener;
@@ -32,8 +34,10 @@ import org.jivesoftware.smack.tcp.XMPPTCPConnection;
 import org.jivesoftware.smack.tcp.XMPPTCPConnectionConfiguration;
 import org.jivesoftware.smackx.bookmarks.BookmarkManager;
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
+import org.jivesoftware.smackx.bookmarks.Bookmarks;
 import org.jivesoftware.smackx.disco.ServiceDiscoveryManager;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.iqprivate.PrivateDataManager;
 import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.jivesoftware.smackx.muc.MultiUserChatManager;
 import org.jivesoftware.smackx.muc.RoomInfo;
@@ -73,13 +77,14 @@ public class XmppService extends Service {
 
     // Конференции
     MultiUserChatManager manager;
-    List<String> mucList = new ArrayList<>();
+    List<MultiUserChat> mucList = new ArrayList<>();
     Map<String, MultiUserChat> mucMap = new HashMap<>();
     Map<String, PresenceListener> mucParticipantListenerList = new HashMap<>();
     Map<String, MessageListener> mucMessageListenerList = new HashMap<>();
     RoomInfo roomInfo = null;
 
     // Закладки
+    BookmarkManager bookmarkManager = null;
     Map<String, BookmarkedConference> bookmarkedConferenceMap = new HashMap<>();
 
     // Обзор сервисов
@@ -120,9 +125,6 @@ public class XmppService extends Service {
                     case "disconnect":
                         disconnect();
                         break;
-                    case "join_muc":
-                        //XmppService.this.joinToMuc("tty0@conference.jabber.ru", "nic");
-                        break;
                     case "leave_muc":
                         XmppService.this.leaveMuc("tty0@conference.jabber.ru");
                         break;
@@ -142,15 +144,9 @@ public class XmppService extends Service {
                 XmppService.this.sendMucMessage(msgBundle.getString("send_muc"), xmppData.getMessageToSend());
             }
 
-            if(msgBundle.getString("join_muc_from_bookmarks") != null){
-                XmppService.this.joinToMuc(msgBundle.getString("join_muc_from_bookmarks"),
-                        bookmarkedConferenceMap.get(msgBundle.getString("join_muc_from_bookmarks")).getNickname(), null);
-            }
-
-            if(msgBundle.getString("join_muc_from_service_discover") != null){
-                XmppService.this.joinToMuc(msgBundle.getString("join_muc_from_service_discover"),
-                        msgBundle.getString("join_muc_from_service_discover_nick"),
-                        msgBundle.getString("join_muc_from_service_discover_password"));
+            if(msgBundle.getString("join_muc") != null){
+                XmppService.this.joinToMuc(msgBundle.getString("join_muc"), msgBundle.getString("join_muc_nick"),
+                        msgBundle.getString("join_muc_password"));
             }
 
             if(msgBundle.getString("leave_muc") != null){
@@ -163,6 +159,16 @@ public class XmppService extends Service {
 
             if(msgBundle.getString("request_muc_protection_info") != null){
                 XmppService.this.getMucProtectionInfo(msgBundle.getString("request_muc_protection_info"));
+            }
+
+            if(msgBundle.getString("bookmark") != null){
+                if("delete".equals(msgBundle.getString("bookmark"))){
+                    XmppService.this.deleteBookmark();
+                }
+                if("save".equals(msgBundle.getString("bookmark"))){
+                    XmppService.this.saveBookmark(msgBundle.getString("jid"), msgBundle.getString("name"),
+                            msgBundle.getString("nick"), msgBundle.getString("password"));
+                }
             }
         }
     }
@@ -363,6 +369,16 @@ public class XmppService extends Service {
 
                     // Менеджер конференций
                     manager = MultiUserChatManager.getInstanceFor(connection);
+
+                    // Менеджер закладок
+                    try {
+                        bookmarkManager = BookmarkManager.getBookmarkManager(connection);
+                    } catch (XMPPException e) {
+                        e.printStackTrace();
+                    } catch (SmackException e) {
+                        e.printStackTrace();
+                    }
+
                     // Менеджер сервисов
                     serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
                     mainService = account.getServerName();
@@ -703,6 +719,10 @@ public class XmppService extends Service {
                         };
                         mucMessageListenerList.put(mucId, mucMessageListener);
                         muc.addMessageListener(mucMessageListener);
+
+                        Bundle bundle = new Bundle();
+                        bundle.putString("muc_joined", mucId);
+                        sendMessage(bundle);
                     } else {
                         if(roomInfo != null){
                             if(roomInfo.isMembersOnly()){
@@ -717,13 +737,13 @@ public class XmppService extends Service {
 
             // Добавление в список комнат
             boolean mucIdFound = false;
-            for(String addedMucId:mucList){
-                if(addedMucId.equals(mucId)){
+            for(MultiUserChat addedMuc:mucList){
+                if(addedMuc.getRoom().equals(mucId)){
                     mucIdFound = true;
                 }
             }
             if(!mucIdFound){
-                mucList.add(mucId);
+                mucList.add(muc);
             }
             // Добавление в коллекцию комнат
             mucMap.put(mucId, muc);
@@ -781,7 +801,7 @@ public class XmppService extends Service {
             }
 
             // Удаление комнаты из списка
-            mucList.remove(mucId);
+            mucList.remove(muc);
             // Удаление комнаты из коллекции
             mucMap.remove(mucId);
 
@@ -804,19 +824,11 @@ public class XmppService extends Service {
     // Сохранение закладок (комнат) в синглетон
     private void getBookmarkedConference(){
         if(connection != null && connection.isAuthenticated()){
-            BookmarkManager bm = null;
-            try {
-                bm = BookmarkManager.getBookmarkManager(connection);
-            } catch (XMPPException e) {
-                e.printStackTrace();
-            } catch (SmackException e) {
-                e.printStackTrace();
-            }
 
             List<BookmarkedConference> rooms = null;
-            if(bm != null){
+            if(bookmarkManager != null){
                 try {
-                    rooms = bm.getBookmarkedConferences();
+                    rooms = bookmarkManager.getBookmarkedConferences();
                 } catch (SmackException.NoResponseException e) {
                     e.printStackTrace();
                 } catch (XMPPException.XMPPErrorException e) {
@@ -843,6 +855,79 @@ public class XmppService extends Service {
                 }
             }
         }
+    }
+
+    private void deleteBookmark(){
+        if(connection != null && connection.isAuthenticated()){
+            List<BookmarkedConference> bookmarkedConferenceList = xmppData.getCheckedBookmarks();
+
+            for(BookmarkedConference bookmarkedConference:bookmarkedConferenceList){
+                try {
+                    bookmarkManager.removeBookmarkedConference(bookmarkedConference.getJid());
+                } catch (SmackException.NoResponseException e) {
+                    e.printStackTrace();
+                } catch (XMPPException.XMPPErrorException e) {
+                    e.printStackTrace();
+                } catch (SmackException.NotConnectedException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            xmppData.clearCheckedBookmarks();
+
+            Bundle bundle = new Bundle();
+            bundle.putString("bookmark", "update");
+            sendMessage(bundle);
+        }
+    }
+
+    private void saveBookmark(String jid, String name, String nick, String password){
+        List<BookmarkedConference> bookmarkedConferences = null;
+        try {
+            bookmarkedConferences = bookmarkManager.getBookmarkedConferences();
+        } catch (SmackException.NoResponseException e) {
+            e.printStackTrace();
+        } catch (XMPPException.XMPPErrorException e) {
+            e.printStackTrace();
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        }
+
+        if(bookmarkedConferences != null){
+            String jidToRemove = null;
+            for(BookmarkedConference bookmarkedConference:bookmarkedConferences){
+                if(bookmarkedConference.getJid().equals(jid)){
+                    jidToRemove = jid;
+                }
+            }
+
+            if(jidToRemove != null){
+                try {
+                    bookmarkManager.removeBookmarkedConference(jid);
+                } catch (SmackException.NoResponseException e) {
+                    e.printStackTrace();
+                } catch (XMPPException.XMPPErrorException e) {
+                    e.printStackTrace();
+                } catch (SmackException.NotConnectedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        try {
+            bookmarkManager.addBookmarkedConference(name, jid, false, nick, password);
+        } catch (SmackException.NoResponseException e) {
+            e.printStackTrace();
+        } catch (XMPPException.XMPPErrorException e) {
+            e.printStackTrace();
+        } catch (SmackException.NotConnectedException e) {
+            e.printStackTrace();
+        }
+
+        Bundle bundle = new Bundle();
+        bundle.putString("bookmark", "update");
+        bundle.putString("muc_jid", jid);
+        sendMessage(bundle);
     }
 
     private void getServiceDiscoverItems(final String parentEntityID){

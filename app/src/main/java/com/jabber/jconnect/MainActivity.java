@@ -14,6 +14,7 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -35,6 +36,7 @@ import android.widget.ListView;
 import android.widget.ScrollView;
 import android.widget.Toast;
 
+import org.jivesoftware.smackx.muc.MultiUserChat;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -44,7 +46,7 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ContactFragment.OnListFragmentInteractionListener,
         ChatFragment.OnFragmentInteractionListener, MucFragment.OnMucListFragmentInteractionListener,
-        MucChatFragment.OnMucChatFragmentInteractionListener, BookmarksDialogFragment.NoticeBookmarksDialogListener{
+        MucChatFragment.OnMucChatFragmentInteractionListener, BookmarksDialogFragment.BookmarksDialogListener {
 
     /***********************************************************************************************
      * Реализация связи с сервисом через Messenger
@@ -137,20 +139,41 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 Toast.makeText(getApplicationContext(), errorAccountNotSelected, Toast.LENGTH_LONG).show();
             }
 
-            String error = bundle.getString("error");
+            if(bundle.getString("muc_joined") != null){
+                Toast.makeText(getApplicationContext(), bundle.getString("muc_joined") + ": " +
+                        getResources().getString(R.string.muc_joined), Toast.LENGTH_SHORT)
+                        .show();
+            }
+
+            String error = bundle.getString("toast");
             if(error != null){
+                String toast = "";
+
                 switch(error){
                     case "account_not_selected":
-                        error = getResources().getString(R.string.account_not_selected);
+                        toast = getResources().getString(R.string.account_not_selected);
                         break;
                     case "not_authenticated":
-                        error = getResources().getString(R.string.not_authenticated);
+                        toast = getResources().getString(R.string.not_authenticated);
                         break;
                     default:
                         break;
                 }
 
-                Toast.makeText(getApplicationContext(), error, Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(), toast, Toast.LENGTH_LONG).show();
+            }
+
+            if(bundle.getString("not_authorized_muc_is_members_only") != null){
+                String membersOnlyMsg = "Комната " + bundle.getString("not_authorized_muc_is_members_only") +
+                        " только для зарегистрированных участников";
+                Toast.makeText(getApplicationContext(), membersOnlyMsg, Toast.LENGTH_LONG).show();
+            }
+
+            if("update".equals(bundle.getString("bookmark"))){
+                Toast.makeText(getApplicationContext(),
+                        getResources().getString(R.string.bookmark_added_begin) + " " +
+                                bundle.getString("muc_jid") + " " + getResources().getString(R.string.bookmark_added_end),
+                        Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -170,6 +193,8 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     MucFragment mucFragment;
     // Фрагмент чата комнаты
     MucChatFragment mucChatFragment;
+    // Диалоговое окно для добавления закладок
+    BookmarksDialogFragment bookmarksDialogFragment;
 
     // Показ чат-фрагмента
     boolean showWithChatFragment;
@@ -191,9 +216,6 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     // Параметры MucChatActivity
     boolean showMucActivity = false;
     private static final int SHOW_MUC_CHAT_ACTIVITY = 10;
-
-    // Диалоговое окно выбора закладок
-    BookmarksDialogFragment bookmarksDialogFragment;
 
     Menu menu;
 
@@ -233,17 +255,53 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             /** Called when a drawer has settled in a completely closed state. */
             public void onDrawerClosed(View view) {
                 super.onDrawerClosed(view);
-                Toast.makeText(getApplicationContext(), "closed", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "closed", Toast.LENGTH_SHORT).show();
             }
 
             /** Called when a drawer has settled in a completely open state. */
             public void onDrawerOpened(View drawerView) {
                 super.onDrawerOpened(drawerView);
-                Toast.makeText(getApplicationContext(), "opened", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(getApplicationContext(), "opened", Toast.LENGTH_SHORT).show();
             }
         };
 
         mDrawerLayout.addDrawerListener(mDrawerToggle);
+
+        NavigationView navigationView = (NavigationView) findViewById(R.id.main_activity_drawer_menu);
+
+        if(navigationView != null){
+            navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(MenuItem item) {
+                    int id = item.getItemId();
+                    switch (id){
+                        case R.id.main_activity_drawer_menu_service_discover:
+                            mDrawerLayout.closeDrawer(Gravity.LEFT);
+                            startActivity(new Intent(MainActivity.this, ServiceDiscoveryActivity.class));
+                            break;
+                        case R.id.main_activity_drawer_menu_bookmarks:
+                            mDrawerLayout.closeDrawer(Gravity.LEFT);
+                            sendRequestMessage("bookmarks_request");
+                            break;
+                        case R.id.main_activity_drawer_menu_accounts:
+                            mDrawerLayout.closeDrawer(Gravity.LEFT);
+                            startActivity(new Intent(MainActivity.this, AccountsActivity.class));
+                            break;
+                        case R.id.main_activity_drawer_menu_exit:
+                            mDrawerLayout.closeDrawer(Gravity.LEFT);
+                            if (mBound) {
+                                sendRequestMessage("stop");
+                            }
+                            finish();
+                            break;
+                        default:
+                            break;
+                    }
+
+                    return false;
+                }
+            });
+        }
 
         // Подключение фрагментов
         fm = getSupportFragmentManager();
@@ -575,6 +633,22 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                     mucChatFragment.switchParticipantList();
                 }
                 break;
+            case R.id.menu_add_bookmark:
+                MultiUserChat muc = null;
+                List<MultiUserChat> mucList = xmppData.getMucList();
+                for(MultiUserChat m:mucList){
+                    if(m.getRoom().equals(selectedMucId)){
+                        muc = m;
+                    }
+                }
+
+                if(muc != null){
+                    bookmarksDialogFragment = BookmarksDialogFragment.newInstance(muc.getRoom(),
+                            muc.getNickname(),
+                            BookmarksDialogFragment.NEW_BOOKMARK_FROM_CHAT_MENU);
+                    bookmarksDialogFragment.show(fm, "bokmarks_dialog_fragment");
+                }
+                break;
             default:
                 break;
         }
@@ -610,8 +684,8 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
     // Реализация методов интерфейса mListener во фрагменте MucFragment
     @Override
-    public void onMucListFragmentInteraction(String item) {
-        selectedMucId = item;
+    public void onMucListFragmentInteraction(MultiUserChat item) {
+        selectedMucId = item.getRoom();
         selectedContactJid = null;
 
         if(fragmentChat != null) {
@@ -636,11 +710,6 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     }
 
     // Реализация методов интерфейса mListener во фрагменте ChatFragment
-    /*@Override
-    public void setChat(String chat) {
-        this.chat = chat;
-    }*/
-
     @Override
     public void setSendMsg(String sendMsg) {
         this.sendMsg = sendMsg;
@@ -666,14 +735,18 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         sendMessage(b);
     }
 
-    // Реализация методов интерфейса mListener во фрагменте BookmarksDialogFragment
+    // Реализация методов mListener в BookmarksDialogFragment
     @Override
-    public void onBookmarksDialogInteraction(String item) {
-        bookmarksDialogFragment.dismiss();
+    public void onBookmarkSave(String jid, String name, String nick, String password) {
+        Bundle bundle = new Bundle();
+        bundle.putString("bookmark", "save");
+        bundle.putString("jid", jid);
+        bundle.putString("name", name);
+        bundle.putString("nick", nick);
+        bundle.putString("password", password);
+        sendMessage(bundle);
 
-        Bundle b = new Bundle();
-        b.putString("join_muc_from_bookmarks", item);
-        sendMessage(b);
+        bookmarksDialogFragment.dismiss();
     }
     ///////////////////////////////////////////////////////////////////
 
@@ -692,7 +765,6 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     }
 
     public void showBookmarks(){
-        bookmarksDialogFragment = new BookmarksDialogFragment();
-        bookmarksDialogFragment.show(fm, "bookmarks_dialog_fragment");
+        startActivity(new Intent(this, BookmarksActivity.class));
     }
 }

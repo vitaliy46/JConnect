@@ -183,6 +183,7 @@
             android:layout_height="wrap_content"
             android:text="@string/accounts_dialog_submit_button"
             android:id="@+id/accounts_dialog_submit_button" />
+
     </LinearLayout>
 
 </LinearLayout>

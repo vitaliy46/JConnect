@@ -10,9 +10,9 @@
         app:showAsAction="ifRoom|withText" />
 
     <item
-        android:id="@+id/menu_leave_muc"
+        android:id="@+id/muc_menu_leave_muc"
         android:orderInCategory="0"
-        android:title="@string/menu_leave_muc"
+        android:title="@string/muc_menu_leave_muc"
         app:showAsAction="never" />
 
     <item

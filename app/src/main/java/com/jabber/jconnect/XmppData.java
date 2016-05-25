@@ -7,6 +7,7 @@ import com.jabber.jconnect.database.JConnectDbContract;
 
 import org.jivesoftware.smackx.bookmarks.BookmarkedConference;
 import org.jivesoftware.smackx.disco.packet.DiscoverItems;
+import org.jivesoftware.smackx.muc.MultiUserChat;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -23,13 +24,14 @@ public class XmppData {
     List<Contact> contactList = new ArrayList<>();
     Map<String, String> messagesList = new HashMap<>();
 
-    List<String> mucList = new ArrayList<>();
+    List<MultiUserChat> mucList = new ArrayList<>();
     Map<String, String> mucMessagesList = new HashMap<>();
     Map<String, List<MucParticipant>> mucParticipantList = new HashMap<>();
 
     private String messageToSend;
 
     List<BookmarkedConference> bookmarkedConferenceList = new ArrayList<>();
+    List<BookmarkedConference> checkedBookmarks = new ArrayList<>();
 
     List<DiscoverItems.Item> serviceDiscoverItems = new ArrayList<>();
 
@@ -113,11 +115,11 @@ public class XmppData {
     }
 
     // Список конференций
-    public List<String> getMucList() {
+    public List<MultiUserChat> getMucList() {
         return mucList;
     }
 
-    public void setMucList(List<String> mucList) {
+    public void setMucList(List<MultiUserChat> mucList) {
         this.mucList = mucList;
     }
 
@@ -158,6 +160,18 @@ public class XmppData {
 
     public void setBookmarkedConferenceList(List<BookmarkedConference> bookmarkedConferenceList) {
         this.bookmarkedConferenceList = bookmarkedConferenceList;
+    }
+
+    public List<BookmarkedConference> getCheckedBookmarks() {
+        return checkedBookmarks;
+    }
+
+    public void setCheckedBookmarks(List<BookmarkedConference> checkedBookmarks) {
+        this.checkedBookmarks = checkedBookmarks;
+    }
+
+    public void clearCheckedBookmarks() {
+        this.checkedBookmarks = new ArrayList<>();
     }
 
     // Обзор сервисов

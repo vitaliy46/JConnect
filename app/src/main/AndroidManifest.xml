@@ -50,6 +50,11 @@
             android:theme="@style/AppTheme.NoActionBar"
             android:windowSoftInputMode="stateHidden" />
 
+        <activity android:name=".BookmarksActivity"
+            android:label="@string/bookmarks_title"
+            android:theme="@style/AppTheme.NoActionBar"
+            android:windowSoftInputMode="stateHidden" />
+
     </application>
 
 </manifest>

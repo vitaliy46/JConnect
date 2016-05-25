@@ -9,6 +9,8 @@ import android.widget.TextView;
 
 import com.jabber.jconnect.MucFragment.OnMucListFragmentInteractionListener;
 
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
 import java.util.List;
 
 /**
@@ -18,15 +20,15 @@ import java.util.List;
  */
 public class MucRecyclerViewAdapter extends RecyclerView.Adapter<MucRecyclerViewAdapter.ViewHolder> {
 
-    private List<String> mValues;
+    private List<MultiUserChat> mValues;
     private final MucFragment.OnMucListFragmentInteractionListener mListener;
 
-    public MucRecyclerViewAdapter(List<String> items, MucFragment.OnMucListFragmentInteractionListener listener) {
+    public MucRecyclerViewAdapter(List<MultiUserChat> items, MucFragment.OnMucListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
     }
 
-    public void updateValues(List<String> d){
+    public void updateValues(List<MultiUserChat> d){
         mValues = d;
     }
 
@@ -40,7 +42,7 @@ public class MucRecyclerViewAdapter extends RecyclerView.Adapter<MucRecyclerView
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mContentView.setText(mValues.get(position));
+        holder.mContentView.setText(mValues.get(position).getRoom());
 
         /*holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -62,7 +64,7 @@ public class MucRecyclerViewAdapter extends RecyclerView.Adapter<MucRecyclerView
     public class ViewHolder extends RecyclerView.ViewHolder {
         public final View mView;
         public final TextView mContentView;
-        public String mItem;
+        public MultiUserChat mItem;
 
         public ViewHolder(View view) {
             super(view);

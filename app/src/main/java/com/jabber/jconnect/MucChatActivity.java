@@ -18,7 +18,12 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
 
-public class MucChatActivity extends AppCompatActivity implements MucChatFragment.OnMucChatFragmentInteractionListener {
+import org.jivesoftware.smackx.muc.MultiUserChat;
+
+import java.util.List;
+
+public class MucChatActivity extends AppCompatActivity implements MucChatFragment.OnMucChatFragmentInteractionListener,
+        BookmarksDialogFragment.BookmarksDialogListener {
 
     /***********************************************************************************************
      * Реализация связи с сервисом через Messenger
@@ -82,6 +87,13 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
                     mucChatFragment.updateMucParticipantsList(xmppData.getMucParticipantList(mucId));
                 }
             }
+
+            if("update".equals(bundle.getString("bookmark"))){
+                Toast.makeText(getApplicationContext(),
+                        getResources().getString(R.string.bookmark_added_begin) + " " +
+                                bundle.getString("muc_jid") + " " + getResources().getString(R.string.bookmark_added_end),
+                        Toast.LENGTH_SHORT).show();
+            }
         }
     }
     ////////////////////////////////////////////////////////////////////////////////////////////////
@@ -92,6 +104,8 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
     FragmentManager fm;
     MucChatFragment mucChatFragment;
     Intent startIntent;
+
+    BookmarksDialogFragment bookmarksDialogFragment;
 
     String mucId;
     String sendMsg;
@@ -168,10 +182,7 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
                     mucChatFragment.switchParticipantList();
                 }
                 break;
-            case R.id.muc_menu_add_bookmark:
-                //
-                break;
-            case R.id.menu_leave_muc:
+            case R.id.muc_menu_leave_muc:
                 if (mBound) {
                     if(mucId != null){
                         Bundle b = new Bundle();
@@ -180,6 +191,22 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
                     }
 
                     onBackPressed();
+                }
+                break;
+            case R.id.muc_menu_add_bookmark:
+                MultiUserChat muc = null;
+                List<MultiUserChat> mucList = xmppData.getMucList();
+                for(MultiUserChat m:mucList){
+                    if(m.getRoom().equals(mucId)){
+                        muc = m;
+                    }
+                }
+
+                if(muc != null){
+                    bookmarksDialogFragment = BookmarksDialogFragment.newInstance(muc.getRoom(),
+                            muc.getNickname(),
+                            BookmarksDialogFragment.NEW_BOOKMARK_FROM_CHAT_MENU);
+                    bookmarksDialogFragment.show(fm, "bokmarks_dialog_fragment");
                 }
                 break;
             default:
@@ -236,5 +263,19 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
         Bundle b = new Bundle();
         b.putString("send_muc", mucId);
         sendMessage(b);
+    }
+
+    // Реализация методов mListener в BookmarksDialogFragment
+    @Override
+    public void onBookmarkSave(String jid, String name, String nick, String password) {
+        Bundle bundle = new Bundle();
+        bundle.putString("bookmark", "save");
+        bundle.putString("jid", jid);
+        bundle.putString("name", name);
+        bundle.putString("nick", nick);
+        bundle.putString("password", password);
+        sendMessage(bundle);
+
+        bookmarksDialogFragment.dismiss();
     }
 }
