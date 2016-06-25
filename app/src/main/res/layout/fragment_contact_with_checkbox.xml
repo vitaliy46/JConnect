@@ -1,19 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:paddingTop="5dp"
     android:paddingBottom="5dp"
-    android:orientation="horizontal"
     android:clickable="true"
     android:focusable="true"
     android:background="?android:selectableItemBackground"
-    android:addStatesFromChildren="true">
+    android:addStatesFromChildren="true"
+    android:gravity="center_vertical">
+
+    <CheckBox
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/contact_item_check_box"
+        android:layout_marginRight="5dp" />
 
     <TextView
-        android:id="@+id/muc"
-        android:layout_width="match_parent"
+        android:id="@+id/contact"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_weight="1"
         android:textAlignment="gravity"
         android:gravity="left"
         android:textAppearance="?attr/textAppearanceListItem"

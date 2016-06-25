@@ -5,6 +5,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import com.jabber.jconnect.ContactFragment.OnListFragmentInteractionListener;
@@ -21,6 +23,8 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
     private List<Contact> mValues;
     private final OnListFragmentInteractionListener mListener;
 
+    private boolean withCheckBox = false;
+
     public ContactRecyclerViewAdapter(List<Contact> items, OnListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
@@ -30,10 +34,27 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         mValues = d;
     }
 
+    public void withCheckBox(boolean withCheckBox){
+        this.withCheckBox = withCheckBox;
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return (withCheckBox ? 1 : 0);
+    }
+
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.fragment_contact, parent, false);
+        View view;
+
+        if(viewType == 0){
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.fragment_contact, parent, false);
+        } else {
+            view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.fragment_contact_with_checkbox, parent, false);
+        }
+
         return new ViewHolder(view);
     }
 
@@ -47,16 +68,42 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         //contentText = (status != null) ? (contentText + " - " + status) : contentText;
         holder.mContentView.setText(contentText);
 
-        /*holder.mView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (null != mListener) {
-                    // Notify the active callbacks interface (the activity, if the
-                    // fragment is attached to one) that an item has been selected.
-                    mListener.onListFragmentInteraction(holder.mItem);
+
+
+        if(!withCheckBox){
+            holder.mContentView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(null != mListener){
+                        mListener.onListFragmentInteraction(holder.mItem);
+                    }
                 }
-            }
-        });*/
+            });
+        } else {
+            holder.mCheckBox.setChecked(false);
+
+            holder.mCheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if(isChecked){
+                        mListener.onContactCheched(holder.mItem);
+                    } else {
+                        mListener.onContactUnCheched(holder.mItem);
+                    }
+                }
+            });
+
+            holder.mContentView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if(!holder.mCheckBox.isChecked()){
+                        holder.mCheckBox.setChecked(true);
+                    } else {
+                        holder.mCheckBox.setChecked(false);
+                    }
+                }
+            });
+        }
     }
 
     @Override
@@ -68,19 +115,24 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
         public final View mView;
         public final TextView mContentView;
         public Contact mItem;
+        public CheckBox mCheckBox = null;
 
         public ViewHolder(View view) {
             super(view);
             mView = view;
             mContentView = (TextView) view.findViewById(R.id.contact);
-            mContentView.setOnClickListener(new View.OnClickListener() {
+            /*mContentView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if(null != mListener){
                         mListener.onListFragmentInteraction(mItem);
                     }
                 }
-            });
+            });*/
+
+            if(withCheckBox){
+                mCheckBox = (CheckBox) itemView.findViewById(R.id.contact_item_check_box);
+            }
         }
 
         @Override

@@ -22,6 +22,8 @@ public class XmppData {
     private static XmppData xmppData = new XmppData();
 
     List<Contact> contactList = new ArrayList<>();
+
+    List<Contact> checkedContacts = new ArrayList<>();
     Map<String, String> messagesList = new HashMap<>();
 
     List<MultiUserChat> mucList = new ArrayList<>();
@@ -50,6 +52,14 @@ public class XmppData {
 
     public void setContactList(List<Contact> contactList) {
         this.contactList = contactList;
+    }
+
+    public List<Contact> getCheckedContacts() {
+        return checkedContacts;
+    }
+
+    public void setCheckedContacts(List<Contact> checkedContacts) {
+        this.checkedContacts = checkedContacts;
     }
 
     public String getMessagesList(String jid) {

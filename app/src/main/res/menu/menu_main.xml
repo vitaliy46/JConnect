@@ -6,39 +6,41 @@
     <group android:id="@+id/main_menu">
 
         <item
-            android:id="@+id/menu_exit"
-            android:orderInCategory="0"
-            android:title="@string/menu_exit"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/menu_accounts"
-            android:orderInCategory="0"
-            android:title="@string/menu_accounts"
-            app:showAsAction="never" />
-
-        <item
             android:id="@+id/menu_connect"
             android:orderInCategory="0"
             android:title="@string/menu_connect"
+            app:showAsAction="ifRoom|withText" />
+
+        <item
+            android:id="@+id/menu_add_contact"
+            android:orderInCategory="0"
+            android:title="@string/menu_add_contact"
+            app:showAsAction="ifRoom|withText" />
+
+        <item
+            android:id="@+id/menu_cancel_choice"
+            android:orderInCategory="0"
+            android:title="@string/menu_cancel_choice"
+            android:visible="false"
+            app:showAsAction="ifRoom|withText" />
+
+        <item
+            android:id="@+id/menu_delete_contact"
+            android:orderInCategory="0"
+            android:title="@string/menu_delete_contact"
+            android:visible="false"
+            app:showAsAction="ifRoom|withText" />
+
+        <item
+            android:id="@+id/menu_choose_contact"
+            android:orderInCategory="0"
+            android:title="@string/menu_choose_contact"
             app:showAsAction="never" />
 
         <item
             android:id="@+id/menu_disconnect"
             android:orderInCategory="0"
             android:title="@string/menu_disconnect"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/menu_bookmarks_muc"
-            android:orderInCategory="0"
-            android:title="@string/menu_bookmarks_muc"
-            app:showAsAction="never" />
-
-        <item
-            android:id="@+id/menu_service_discover"
-            android:orderInCategory="0"
-            android:title="@string/menu_service_discover"
             app:showAsAction="never" />
 
     </group>
@@ -66,9 +68,4 @@
 
     </group>
 
-    <item
-        android:id="@+id/action_settings"
-        android:orderInCategory="100"
-        android:title="@string/action_settings"
-        app:showAsAction="never" />
 </menu>

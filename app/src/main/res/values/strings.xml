@@ -1,18 +1,27 @@
 <resources>
     <string name="app_name">JConnect</string>
-    <string name="action_settings">Settings</string>
 
     <!-- Main menu -->
-    <string name="menu_exit">Выйти</string>
+    <string name="menu_add_contact">Добавить контакт</string>
+    <string name="menu_choose_contact">Выбрать</string>
+    <string name="menu_delete_contact">Удалить</string>
+    <string name="menu_cancel_choice">Отменить</string>
     <string name="menu_connect">Соединение</string>
     <string name="menu_disconnect">Отключиться</string>
-    <string name="menu_bookmarks_muc">Закладки</string>
-    <string name="menu_service_discover">Обзор сервисов</string>
-    <string name="menu_accounts">Учетные записи</string>
 
     <string name="menu_muc_participant_list">Участники</string>
     <string name="menu_leave_muc">Покинуть комнату</string>
     <string name="menu_add_bookmark">В закладки</string>
+
+    <!-- Contact add dialog -->
+    <string name="contact_dialog_add_title">Добавить контакт</string>
+    <string name="contact_dialog_add_jid">ID</string>
+    <string name="contact_dialog_add_name">Имя</string>
+    <string name="contact_dialog_add_submit_button">OK</string>
+    <string name="contact_dialog_add_cancel_button">Отмена</string>
+    <string name="contact_dialog_add_field_error_begin">Поле</string>
+    <string name="contact_dialog_add_empty_field_error">не должно быть пустым</string>
+    <string name="contact_dialog_add_jid_field_error">должно иметь формат user@server.com</string>
 
     <!-- Main Activity Toasts -->
     <string name="account_not_selected">Для подключения необходмо выбрать учетную запись</string>

@@ -136,6 +136,14 @@ public class XmppService extends Service {
                 }
             }
 
+            if(msgBundle.getString("save_contact") != null){
+                XmppService.this.saveContact(msgBundle.getString("save_contact"), msgBundle.getString("contact_name"));
+            }
+
+            if("remove".equals(msgBundle.getString("contact"))){
+                XmppService.this.removeContact();
+            }
+
             if(msgBundle.getString("send") != null){
                 XmppService.this.sendMessage(msgBundle.getString("send"), xmppData.getMessageToSend());
             }
@@ -447,6 +455,80 @@ public class XmppService extends Service {
             Bundle bundle = new Bundle();
             bundle.putString("roster", "update");
             sendMessage(bundle);
+        }
+    }
+
+    private void saveContact(String jid, String name){
+        if(connection != null && connection.isAuthenticated()){
+            Roster roster = Roster.getInstanceFor(connection);
+
+            Collection<RosterEntry> entries = roster.getEntries();
+            for(RosterEntry entry:entries){
+                if(entry.getUser().equals(jid)){
+                    try {
+                        roster.removeEntry(entry);
+                    } catch (SmackException.NotLoggedInException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NoResponseException e) {
+                        e.printStackTrace();
+                    } catch (XMPPException.XMPPErrorException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NotConnectedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+
+            try {
+                roster.createEntry(jid, name, null);
+            } catch (SmackException.NotLoggedInException e) {
+                e.printStackTrace();
+            } catch (SmackException.NoResponseException e) {
+                e.printStackTrace();
+            } catch (XMPPException.XMPPErrorException e) {
+                e.printStackTrace();
+            } catch (SmackException.NotConnectedException e) {
+                e.printStackTrace();
+            }
+
+            updateContactList();
+        }
+    }
+
+    private void removeContact(){
+        if(connection != null && connection.isAuthenticated()){
+            Roster roster = Roster.getInstanceFor(connection);
+
+            List<Contact> contacts = xmppData.getCheckedContacts();
+
+            RosterEntry rosterEntry = null;
+            Collection<RosterEntry> entries = roster.getEntries();
+
+            for(Contact contact:contacts){
+                for(RosterEntry entry:entries){
+                    if(entry.getUser().equals(contact.getJid())){
+                        rosterEntry = entry;
+                    }
+                }
+
+                if(rosterEntry != null){
+                    try {
+                        roster.removeEntry(rosterEntry);
+                    } catch (SmackException.NotLoggedInException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NoResponseException e) {
+                        e.printStackTrace();
+                    } catch (XMPPException.XMPPErrorException e) {
+                        e.printStackTrace();
+                    } catch (SmackException.NotConnectedException e) {
+                        e.printStackTrace();
+                    }
+
+                    rosterEntry = null;
+                }
+            }
+
+            updateContactList();
         }
     }
 

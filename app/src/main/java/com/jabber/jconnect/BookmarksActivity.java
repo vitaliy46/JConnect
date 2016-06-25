@@ -199,17 +199,20 @@ public class BookmarksActivity extends AppCompatActivity implements BookmarksFra
         switch (id){
             case android.R.id.home:
                 onBackPressed();
+
                 break;
             case R.id.bookmarks_menu_choose:
                 bookmarksFragment.updateBookmarksListViewWithCheckBox(true);
                 cancelChoiseMenuItem.setVisible(true);
                 deleteChosenMenuItem.setVisible(true);
+
                 break;
             case R.id.bookmarks_cancel_choise:
                 bookmarksFragment.updateBookmarksListViewWithCheckBox(false);
                 cancelChoiseMenuItem.setVisible(false);
                 deleteChosenMenuItem.setVisible(false);
                 checkedBookmarks = new ArrayList<>();
+
                 break;
             case R.id.bookmarks_delete_chosen:
                 xmppData.setCheckedBookmarks(checkedBookmarks);
@@ -223,10 +226,12 @@ public class BookmarksActivity extends AppCompatActivity implements BookmarksFra
                 Bundle bundle = new Bundle();
                 bundle.putString("bookmark", "delete");
                 sendMessage(bundle);
+
                 break;
             case R.id.bookmarks_menu_add:
                 bookmarksDialogFragment = BookmarksDialogFragment.newInstance(BookmarksDialogFragment.NEW_BOOKMARK);
                 bookmarksDialogFragment.show(fm, "bokmarks_dialog_fragment");
+
                 break;
             default:
                 break;

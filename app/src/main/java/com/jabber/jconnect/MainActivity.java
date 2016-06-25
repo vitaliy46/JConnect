@@ -46,7 +46,8 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements ContactFragment.OnListFragmentInteractionListener,
         ChatFragment.OnFragmentInteractionListener, MucFragment.OnMucListFragmentInteractionListener,
-        MucChatFragment.OnMucChatFragmentInteractionListener, BookmarksDialogFragment.BookmarksDialogListener {
+        MucChatFragment.OnMucChatFragmentInteractionListener, BookmarksDialogFragment.BookmarksDialogListener,
+        ContactDialogFragment.ContactDialogListener {
 
     /***********************************************************************************************
      * Реализация связи с сервисом через Messenger
@@ -186,6 +187,15 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
     // Фрагмент списка контактов
     ContactFragment fragmentContact;
+
+    MenuItem deleteChosenContacts;
+    MenuItem cancelChoiceContacts;
+    MenuItem addContact;
+
+    List<Contact> checkedContacts = new ArrayList<>();
+
+    // Фрагмент редактирования контакта
+    ContactDialogFragment contactDialogFragment;
     // Фрагмент чата
     ChatFragment fragmentChat;
 
@@ -568,6 +578,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
+        addContact = menu.findItem(R.id.menu_add_contact);
+        deleteChosenContacts = menu.findItem(R.id.menu_delete_contact);
+        cancelChoiceContacts = menu.findItem(R.id.menu_cancel_choice);
 
         this.menu = menu;
         if(selectedMucId != null){
@@ -585,11 +598,41 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         int id = item.getItemId();
 
         switch (id){
-            case R.id.menu_exit:
-                if (mBound) {
-                    sendRequestMessage("stop");
-                }
-                finish();
+            case R.id.menu_add_contact:
+                contactDialogFragment = ContactDialogFragment.newInstance(ContactDialogFragment.NEW_CONTACT);
+                contactDialogFragment.show(fm, "contact_dialog_fragment");
+
+                break;
+            case R.id.menu_choose_contact:
+                fragmentContact.updateContactListView(true);
+                deleteChosenContacts.setVisible(true);
+                cancelChoiceContacts.setVisible(true);
+                addContact.setVisible(false);
+
+                break;
+            case R.id.menu_delete_contact:
+                xmppData.setCheckedContacts(checkedContacts);
+
+                fragmentContact.updateContactListView(false);
+                deleteChosenContacts.setVisible(false);
+                cancelChoiceContacts.setVisible(false);
+                addContact.setVisible(true);
+
+                checkedContacts = new ArrayList<>();
+
+                Bundle bundle = new Bundle();
+                bundle.putString("contact", "remove");
+                sendMessage(bundle);
+
+                break;
+            case R.id.menu_cancel_choice:
+                fragmentContact.updateContactListView(false);
+                deleteChosenContacts.setVisible(false);
+                cancelChoiceContacts.setVisible(false);
+                addContact.setVisible(true);
+
+                checkedContacts = new ArrayList<>();
+
                 break;
             case R.id.menu_connect:
                 if (mBound) {
@@ -600,15 +643,6 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                 if (mBound) {
                     sendRequestMessage("disconnect");
                 }
-                break;
-            case R.id.menu_bookmarks_muc:
-                sendRequestMessage("bookmarks_request");
-                break;
-            case R.id.menu_service_discover:
-                startActivity(new Intent(this, ServiceDiscoveryActivity.class));
-                break;
-            case R.id.menu_accounts:
-                startActivity(new Intent(this, AccountsActivity.class));
                 break;
             case R.id.menu_leave_muc:
                 if (mBound) {
@@ -680,6 +714,28 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         } else {
             showChat();
         }
+    }
+
+    @Override
+    public void onContactCheched(Contact c) {
+        checkedContacts.add(c);
+    }
+
+    @Override
+    public void onContactUnCheched(Contact c) {
+        checkedContacts.remove(c);
+    }
+
+    // Реализация методов интерфейса mListener во фрагменте ContactDialogFragment
+    @Override
+    public void onContactSave(String jid, String name) {
+        Bundle bundle = new Bundle();
+        bundle.putString("save_contact", jid);
+        bundle.putString("contact_name", name);
+
+        sendMessage(bundle);
+
+        contactDialogFragment.dismiss();
     }
 
     // Реализация методов интерфейса mListener во фрагменте MucFragment

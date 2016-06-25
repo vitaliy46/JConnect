@@ -112,10 +112,17 @@ public class ContactFragment extends Fragment {
     public interface OnListFragmentInteractionListener {
         // TODO: Update argument type and name
         void onListFragmentInteraction(Contact contact);
+        void onContactCheched(Contact contact);
+        void onContactUnCheched(Contact contact);
     }
 
     public void updateContacts(List<Contact> d){
         crvAdapter.updateValues(d);
+        crvAdapter.notifyDataSetChanged();
+    }
+
+    public void updateContactListView(boolean withCheckBox){
+        crvAdapter.withCheckBox(withCheckBox);
         crvAdapter.notifyDataSetChanged();
     }
 }
