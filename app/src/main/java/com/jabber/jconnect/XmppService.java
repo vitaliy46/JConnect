@@ -1,8 +1,10 @@
 package com.jabber.jconnect;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -207,17 +209,21 @@ public class XmppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        // Вывод сервиса на передний план
-        Intent notificationIntent = new Intent(this, MainActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-        Notification mNotification = new NotificationCompat.Builder(this)
-                .setContentTitle("Connect to jabber service")
-                .setTicker("Connect to jabber service")
-                .setContentText("Connect to jabber service")
+        Context context = getApplicationContext();
+
+        Intent notificationIntent = new Intent(context, MainActivity.class);
+        PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+        Notification mNotification = new NotificationCompat.Builder(context)
+                .setSmallIcon(R.drawable.ic_launcher)
+                .setTicker("JConnect")
+                .setContentTitle("JConnect")
+                .setContentText("Jabber service")
                 .setContentIntent(pendingIntent)
                 .setOngoing(true)
                 .build();
-        startForeground(6711, mNotification);
+
+        // Старт сервиса на переднем плане
+        startForeground(101, mNotification);
 
         return Service.START_STICKY;
     }
