@@ -6,6 +6,9 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
@@ -211,10 +214,13 @@ public class XmppService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         Context context = getApplicationContext();
 
+        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+
         Intent notificationIntent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         Notification mNotification = new NotificationCompat.Builder(context)
                 .setSmallIcon(R.drawable.ic_launcher)
+                .setLargeIcon(largeIcon)
                 .setTicker("JConnect")
                 .setContentTitle("JConnect")
                 .setContentText("Jabber service")

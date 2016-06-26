@@ -22,6 +22,7 @@
                 android:layout_weight="1"
                 android:textSize="18sp"
                 android:inputType="text"
+                android:background="@android:color/transparent"
                 android:imeOptions="flagNoExtractUi"
                 android:id="@+id/service_discover_edit" />
 
