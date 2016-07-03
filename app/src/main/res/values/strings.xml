@@ -36,6 +36,7 @@
     <string name="main_activity_drawer_menu_accounts">Учетные записи</string>
     <string name="main_activity_drawer_menu_bookmarks">Закладки</string>
     <string name="main_activity_drawer_menu_service_discover">Обзор сервисов</string>
+    <string name="main_activity_drawer_menu_settings">Настройки</string>
 
     <!-- Muc menu -->
     <string name="muc_menu_leave_muc">Покинуть комнату</string>
@@ -112,5 +113,18 @@
 
     <!-- Participants drawer -->
     <string name="participants_drawer_title">Участники</string>
+
+    <!-- Strings related to Settings -->
+    <string name="title_activity_settings">Настройки</string>
+
+    <!-- Example settings for Notifications -->
+    <string name="pref_header_notifications">Уведомления</string>
+
+    <string name="pref_title_new_message_notifications">Уведомления о новых сообщениях</string>
+
+    <string name="pref_title_ringtone">Звук</string>
+    <string name="pref_ringtone_silent">Без звука</string>
+
+    <string name="pref_title_vibrate">Вибрация</string>
 
 </resources>

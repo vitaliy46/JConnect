@@ -18,8 +18,8 @@
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
 
     <style name="ActivityTheme" parent="AppTheme.NoActionBar">
-        <item name="android:textColorLink">#3fba3b</item>
-        <item name="colorPrimary">#3fba3b</item>
+        <item name="android:textColorLink">#24ca61</item>
+        <item name="colorPrimary">#24ca61</item>
     </style>
 
 </resources>

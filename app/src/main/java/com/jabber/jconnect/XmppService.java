@@ -6,14 +6,18 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.Drawable;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
@@ -66,7 +70,7 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class XmppService extends Service {
+public class XmppService extends Service implements SharedPreferences.OnSharedPreferenceChangeListener {
 
     AbstractXMPPConnection connection = null;
     private int connectionStatus = 0;
@@ -98,6 +102,12 @@ public class XmppService extends Service {
 
     // Синглетон для доступа к данным
     XmppData xmppData = XmppData.getInstance();
+
+    private final int NOTIFICATION_ID = 101;
+    NotificationManager notificationManager;
+    Notification msgNotification = null;
+    Context context;
+    Bitmap largeIcon;
 
     /***********************************************************************************************
     * Класс обработчика сообщений активностей
@@ -212,14 +222,16 @@ public class XmppService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Context context = getApplicationContext();
+        context = getApplicationContext();
 
-        Bitmap largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.ic_launcher);
+        notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        largeIcon = BitmapFactory.decodeResource(getResources(), R.drawable.logo_large);
 
         Intent notificationIntent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
         Notification mNotification = new NotificationCompat.Builder(context)
-                .setSmallIcon(R.drawable.ic_launcher)
+                .setSmallIcon(R.drawable.logo_small)
                 .setLargeIcon(largeIcon)
                 .setTicker("JConnect")
                 .setContentTitle("JConnect")
@@ -228,8 +240,29 @@ public class XmppService extends Service {
                 .setOngoing(true)
                 .build();
 
+        SharedPreferences mSettings = PreferenceManager.getDefaultSharedPreferences(context);
+        mSettings.registerOnSharedPreferenceChangeListener(this);
+
+        if(mSettings.getBoolean("notifications_new_message", false)){
+            msgNotification = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.logo_small)
+                    .setLargeIcon(largeIcon)
+                    .setTicker("JConnect")
+                    .setContentTitle("JConnect")
+                    .setContentText("Jabber service")
+                    .setContentIntent(pendingIntent)
+                    .setOngoing(true)
+                    .build();
+
+            msgNotification.sound = Uri.parse(mSettings.getString("notifications_new_message_ringtone", ""));
+
+            if(mSettings.getBoolean("notifications_new_message_vibrate", false)){
+                msgNotification.vibrate = new long[]{1, 200};
+            }
+        }
+
         // Старт сервиса на переднем плане
-        startForeground(101, mNotification);
+        startForeground(NOTIFICATION_ID, mNotification);
 
         return Service.START_STICKY;
     }
@@ -241,6 +274,32 @@ public class XmppService extends Service {
         }
         stopForeground(true);
         stopSelf();
+    }
+
+    @Override
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+        if(sharedPreferences.getBoolean("notifications_new_message", false)){
+            Intent notificationIntent = new Intent(context, MainActivity.class);
+            PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, 0);
+
+            msgNotification = new NotificationCompat.Builder(context)
+                    .setSmallIcon(R.drawable.logo_small)
+                    .setLargeIcon(largeIcon)
+                    .setTicker("JConnect")
+                    .setContentTitle("JConnect")
+                    .setContentText("Jabber service")
+                    .setContentIntent(pendingIntent)
+                    .setOngoing(true)
+                    .build();
+
+            msgNotification.sound = Uri.parse(sharedPreferences.getString("notifications_new_message_ringtone", ""));
+
+            if(sharedPreferences.getBoolean("notifications_new_message_vibrate", false)){
+                msgNotification.vibrate = new long[]{1, 200};
+            }
+        } else {
+            msgNotification = null;
+        }
     }
 
     /***********************************************************************************************
@@ -369,6 +428,10 @@ public class XmppService extends Service {
                                         replyMessenger.send(chatMsg);
                                     } catch (RemoteException e) {
                                         e.printStackTrace();
+                                    }
+
+                                    if(msgNotification != null){
+                                        notificationManager.notify(NOTIFICATION_ID, msgNotification);
                                     }
                                 }
                             });
@@ -808,6 +871,10 @@ public class XmppService extends Service {
                                     replyMessenger.send(mucChatMsg);
                                 } catch (RemoteException e) {
                                     e.printStackTrace();
+                                }
+
+                                if(msgNotification != null){
+                                    notificationManager.notify(NOTIFICATION_ID, msgNotification);
                                 }
                             }
                         };

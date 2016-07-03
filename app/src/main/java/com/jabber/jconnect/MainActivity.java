@@ -15,6 +15,7 @@ import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.support.design.widget.NavigationView;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -34,6 +35,7 @@ import android.view.ViewTreeObserver;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import org.jivesoftware.smackx.muc.MultiUserChat;
@@ -115,6 +117,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
             if(bundle.getString("muc_list_update") != null){
                 if(mucFragment != null){
+                    if(!xmppData.getMucList().isEmpty()){
+                        mucListHeader.setVisibility(View.VISIBLE);
+                    } else {
+                        mucListHeader.setVisibility(View.INVISIBLE);
+                    }
                     mucFragment.updateMucList(xmppData.getMucList());
                 }
             }
@@ -131,6 +138,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
             if("update".equals(bundle.getString("roster"))){
                 if(fragmentContact != null){
+                    if(!xmppData.getContactList().isEmpty()){
+                        contactListHeader.setVisibility(View.VISIBLE);
+                    } else {
+                        contactListHeader.setVisibility(View.INVISIBLE);
+                    }
                     fragmentContact.updateContacts(xmppData.getContactList());
                 }
             }
@@ -187,6 +199,9 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
 
     // Фрагмент списка контактов
     ContactFragment fragmentContact;
+
+    TextView contactListHeader;
+    TextView mucListHeader;
 
     MenuItem deleteChosenContacts;
     MenuItem cancelChoiceContacts;
@@ -296,6 +311,10 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
                         case R.id.main_activity_drawer_menu_accounts:
                             mDrawerLayout.closeDrawer(Gravity.LEFT);
                             startActivity(new Intent(MainActivity.this, AccountsActivity.class));
+                            break;
+                        case R.id.main_activity_drawer_menu_settings:
+                            mDrawerLayout.closeDrawer(Gravity.LEFT);
+                            startActivity(new Intent(MainActivity.this, SettingsActivity.class));
                             break;
                         case R.id.main_activity_drawer_menu_exit:
                             mDrawerLayout.closeDrawer(Gravity.LEFT);
@@ -553,6 +572,23 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             bindService(intent, mConnection, Context.BIND_ABOVE_CLIENT);
         }
 
+        contactListHeader = (TextView) findViewById(R.id.contact_list_header);
+        if (contactListHeader != null) {
+            if(!xmppData.getContactList().isEmpty()){
+                contactListHeader.setVisibility(View.VISIBLE);
+            } else {
+                contactListHeader.setVisibility(View.INVISIBLE);
+            }
+        }
+        mucListHeader = (TextView) findViewById(R.id.muc_list_header);
+        if (mucListHeader != null) {
+            if(!xmppData.getMucList().isEmpty()){
+                mucListHeader.setVisibility(View.VISIBLE);
+            } else {
+                mucListHeader.setVisibility(View.INVISIBLE);
+            }
+        }
+
         if(fragmentContact != null){
             fragmentContact.updateContacts(xmppData.getContactList());
         }
@@ -579,6 +615,11 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_main, menu);
         addContact = menu.findItem(R.id.menu_add_contact);
+        Drawable drawable = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_action_new, null);
+        drawable = DrawableCompat.wrap(drawable);
+        DrawableCompat.setTint(drawable, Color.WHITE);
+        addContact.setIcon(drawable);
+
         deleteChosenContacts = menu.findItem(R.id.menu_delete_contact);
         cancelChoiceContacts = menu.findItem(R.id.menu_cancel_choice);
 

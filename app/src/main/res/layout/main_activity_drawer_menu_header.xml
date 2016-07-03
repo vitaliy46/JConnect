@@ -13,6 +13,6 @@
         android:textSize="18sp"
         android:textStyle="bold"
         android:textColor="#ffffff"
-        android:background="#3fba3b"/>
+        android:background="#24ca61"/>
 
 </LinearLayout>

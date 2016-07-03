@@ -18,6 +18,10 @@
             android:title="@string/main_activity_drawer_menu_accounts" />
 
         <item
+            android:id="@+id/main_activity_drawer_menu_settings"
+            android:title="@string/main_activity_drawer_menu_settings" />
+
+        <item
             android:id="@+id/main_activity_drawer_menu_exit"
             android:title="@string/main_activity_drawer_menu_exit" />
 
