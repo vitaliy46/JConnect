@@ -89,6 +89,7 @@ public class ChatActivity extends AppCompatActivity implements ChatFragment.OnFr
 
                 if((fragmentChat != null) && (jid.equals(bundle.getString("recieve")))) {
                     fragmentChat.setChatView(x.getMessagesList(bundle.getString("recieve")));
+                    x.initializeOrResetMessagesCount(jid);
                 }
             }
         }

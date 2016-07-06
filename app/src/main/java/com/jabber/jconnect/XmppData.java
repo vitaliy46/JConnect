@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Set;
 
 public class XmppData {
     private static XmppData xmppData = new XmppData();
@@ -29,6 +28,8 @@ public class XmppData {
     List<MultiUserChat> mucList = new ArrayList<>();
     Map<String, String> mucMessagesList = new HashMap<>();
     Map<String, List<MucParticipant>> mucParticipantList = new HashMap<>();
+
+    Map<String, Integer> messagesCountMap = new HashMap<>();
 
     private String messageToSend;
 
@@ -161,6 +162,19 @@ public class XmppData {
 
     public void clearMucParticipantList(String mucID){
         mucParticipantList.put(mucID, new ArrayList<MucParticipant>());
+    }
+
+    // Подсчет новых сообщений
+    public void initializeOrResetMessagesCount(String jid){
+        messagesCountMap.put(jid, 0);
+    }
+
+    public void incrementMessagesCount(String jid){
+        messagesCountMap.put(jid, messagesCountMap.get(jid)+1);
+    }
+
+    public int getMessagesCount(String jid){
+        return messagesCountMap.get(jid) != null ? messagesCountMap.get(jid) : 0;
     }
 
     // Закладки

@@ -23,6 +23,8 @@ public class MucRecyclerViewAdapter extends RecyclerView.Adapter<MucRecyclerView
     private List<MultiUserChat> mValues;
     private final MucFragment.OnMucListFragmentInteractionListener mListener;
 
+    XmppData xmppData = XmppData.getInstance();
+
     public MucRecyclerViewAdapter(List<MultiUserChat> items, MucFragment.OnMucListFragmentInteractionListener listener) {
         mValues = items;
         mListener = listener;
@@ -42,7 +44,12 @@ public class MucRecyclerViewAdapter extends RecyclerView.Adapter<MucRecyclerView
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        holder.mContentView.setText(mValues.get(position).getRoom());
+        String mucID = mValues.get(position).getRoom();
+
+        int messageCount = xmppData.getMessagesCount(mucID);
+
+        String contentText = mucID + ((messageCount != 0) ? (" (" + messageCount + ")") : "");
+        holder.mContentView.setText(contentText);
 
         /*holder.mView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,6 +83,9 @@ public class MucRecyclerViewAdapter extends RecyclerView.Adapter<MucRecyclerView
                     if(null != mListener){
                         mListener.onMucListFragmentInteraction(mItem);
                     }
+
+                    xmppData.initializeOrResetMessagesCount(mItem.getRoom());
+                    mContentView.setText(mItem.getRoom());
                 }
             });
         }

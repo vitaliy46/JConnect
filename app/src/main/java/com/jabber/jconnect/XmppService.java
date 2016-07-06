@@ -413,6 +413,8 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                                 chatMap.put(jid, chat);
                             }
 
+                            xmppData.initializeOrResetMessagesCount(jid);
+
                             chat.addMessageListener(new ChatMessageListener() {
                                 @Override
                                 public void processMessage(Chat chat, Message message) {
@@ -429,6 +431,8 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                                     } catch (RemoteException e) {
                                         e.printStackTrace();
                                     }
+
+                                    xmppData.incrementMessagesCount(finalJid);
 
                                     if(msgNotification != null){
                                         notificationManager.notify(NOTIFICATION_ID, msgNotification);
@@ -873,6 +877,8 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                                     e.printStackTrace();
                                 }
 
+                                xmppData.incrementMessagesCount(mucId);
+
                                 if(msgNotification != null){
                                     notificationManager.notify(NOTIFICATION_ID, msgNotification);
                                 }
@@ -880,6 +886,8 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                         };
                         mucMessageListenerList.put(mucId, mucMessageListener);
                         muc.addMessageListener(mucMessageListener);
+
+                        xmppData.initializeOrResetMessagesCount(mucId);
 
                         Bundle bundle = new Bundle();
                         bundle.putString("muc_joined", mucId);

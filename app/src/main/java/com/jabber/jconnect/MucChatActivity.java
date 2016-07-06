@@ -79,6 +79,7 @@ public class MucChatActivity extends AppCompatActivity implements MucChatFragmen
             if(bundle.getString("recieve_muc") != null) {
                 if(mucChatFragment != null && mucId.equals(bundle.getString("recieve_muc"))) {
                     mucChatFragment.setMucChatView(xmppData.getMucMessagesList(bundle.getString("recieve_muc")));
+                    xmppData.initializeOrResetMessagesCount(mucId);
                 }
             }
 

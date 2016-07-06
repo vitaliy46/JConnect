@@ -27,7 +27,9 @@ public class ContactFragment extends Fragment {
     private int mColumnCount = 1;
     private OnListFragmentInteractionListener mListener;
 
+    RecyclerView recyclerView;
     ContactRecyclerViewAdapter crvAdapter;
+
     private List<Contact> data = new ArrayList<>();
 
     /**
@@ -64,7 +66,7 @@ public class ContactFragment extends Fragment {
         // Set the adapter
         if (view instanceof RecyclerView) {
             Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
+            recyclerView = (RecyclerView) view;
             if (mColumnCount <= 1) {
                 recyclerView.setLayoutManager(new LinearLayoutManager(context));
             } else {

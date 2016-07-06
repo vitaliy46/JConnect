@@ -23,6 +23,8 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
     private List<Contact> mValues;
     private final OnListFragmentInteractionListener mListener;
 
+    XmppData xmppData = XmppData.getInstance();
+
     private boolean withCheckBox = false;
 
     public ContactRecyclerViewAdapter(List<Contact> items, OnListFragmentInteractionListener listener) {
@@ -61,14 +63,16 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
         holder.mItem = mValues.get(position);
-        String jid = holder.mItem.getJid();
+        final String jid = holder.mItem.getJid();
         String name = holder.mItem.getName();
         String status = holder.mItem.getStatus();
-        String contentText = ((name != null) ? (name + " - ") : "") + jid;
+        int messageCount = xmppData.getMessagesCount(jid);
+
+        final String contentText = ((name != null) ? (name + " - ") : "") + jid;
+        String contentTextWithCount = ((name != null) ? (name + " - ") : "") + jid +
+                ((messageCount != 0) ? (" (" + messageCount + ")") : "");
         //contentText = (status != null) ? (contentText + " - " + status) : contentText;
-        holder.mContentView.setText(contentText);
-
-
+        holder.mContentView.setText(contentTextWithCount);
 
         if(!withCheckBox){
             holder.mContentView.setOnClickListener(new View.OnClickListener() {
@@ -77,6 +81,9 @@ public class ContactRecyclerViewAdapter extends RecyclerView.Adapter<ContactRecy
                     if(null != mListener){
                         mListener.onListFragmentInteraction(holder.mItem);
                     }
+
+                    xmppData.initializeOrResetMessagesCount(jid);
+                    holder.mContentView.setText(contentText);
                 }
             });
         } else {

@@ -106,12 +106,18 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
             if(bundle.getString("recieve") != null) {
                 if(fragmentChat != null && selectedContactJid.equals(bundle.getString("recieve"))) {
                     fragmentChat.setChatView(xmppData.getMessagesList(bundle.getString("recieve")));
+                    xmppData.initializeOrResetMessagesCount(selectedContactJid);
+                } else {
+                    fragmentContact.updateContacts(xmppData.getContactList());
                 }
             }
 
             if(bundle.getString("recieve_muc") != null) {
                 if(mucChatFragment != null && selectedMucId.equals(bundle.getString("recieve_muc"))) {
                     mucChatFragment.setMucChatView(xmppData.getMucMessagesList(bundle.getString("recieve_muc")));
+                    xmppData.initializeOrResetMessagesCount(selectedMucId);
+                } else {
+                    mucFragment.updateMucList(xmppData.getMucList());
                 }
             }
 
