@@ -121,6 +121,18 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
             if(msg.replyTo != null) {
                 replyMessenger = msg.replyTo;
 
+                if("main".equals(msgBundle.getString("activity"))){
+                    Bundle bundle = new Bundle();
+
+                    if(connection != null && connection.isConnected() && connection.isAuthenticated()){
+                        bundle.putString("connection_status", "online");
+                    } else {
+                        bundle.putString("connection_status", "offline");
+                    }
+
+                    XmppService.this.sendMessage(bundle);
+                }
+
                 if("service_discover".equals(msgBundle.getString("activity"))) {
                     Bundle bundle = new Bundle();
                     bundle.putString("parent_entity_id", mainService);
@@ -470,6 +482,16 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                     serviceDiscoveryManager = ServiceDiscoveryManager.getInstanceFor(connection);
                     mainService = account.getServerName();
 
+                    Bundle bundle = new Bundle();
+                    bundle.putString("connection_status", "online");
+                    XmppService.this.sendMessage(bundle);
+
+                    if(!mucList.isEmpty()){
+                        for(MultiUserChat muc:mucList){
+                            XmppService.this.joinToMuc(muc.getRoom(), muc.getNickname(), null);
+                        }
+                    }
+
                     new Thread(new Runnable() {
                         @Override
                         public void run() {
@@ -480,11 +502,28 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                                     e.printStackTrace();
                                 }
                             }
+
+                            Bundle bundle = new Bundle();
+                            bundle.putString("connection_status", "offline");
+                            XmppService.this.sendMessage(bundle);
+
+                            while(!(connection != null && connection.isConnected())){
+                                if(connectionStatus == CONNECTED){
+                                    disconnect();
+                                    connect();
+                                }
+
+                                try {
+                                    Thread.sleep(60000);
+                                } catch (InterruptedException e) {
+                                    e.printStackTrace();
+                                }
+                            }
                         }
                     }).start();
                 } else {
                     connection.disconnect();
-                    connection = null;
+                    //connection = null;
                     Bundle bundle = new Bundle();
                     bundle.putString("error", "not_authenticated");
                     sendMessage(bundle);
@@ -502,6 +541,10 @@ public class XmppService extends Service implements SharedPreferences.OnSharedPr
                 connection.disconnect();
                 connection = null;
                 mainService = "";
+
+                Bundle bundle = new Bundle();
+                bundle.putString("connection_status", "offline");
+                XmppService.this.sendMessage(bundle);
             }
         }
     }

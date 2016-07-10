@@ -103,6 +103,12 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         public void handleMessage(Message msg) {
             Bundle bundle = msg.getData();
 
+            if("online".equals(bundle.getString("connection_status"))){
+                MainActivity.this.setTitle(getResources().getString(R.string.main_activity_status_online));
+            } else if("offline".equals(bundle.getString("connection_status"))){
+                MainActivity.this.setTitle(getResources().getString(R.string.main_activity_status_offline));
+            }
+
             if(bundle.getString("recieve") != null) {
                 if(fragmentChat != null && selectedContactJid.equals(bundle.getString("recieve"))) {
                     fragmentChat.setChatView(xmppData.getMessagesList(bundle.getString("recieve")));
@@ -260,6 +266,8 @@ public class MainActivity extends AppCompatActivity implements ContactFragment.O
         setContentView(R.layout.activity_main);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        setTitle(R.string.main_activity_status_offline);
 
         if(savedInstanceState != null) {
             // Восстановление значений сохраненных в savedInstanceState

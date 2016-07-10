@@ -38,6 +38,10 @@
     <string name="main_activity_drawer_menu_service_discover">Обзор сервисов</string>
     <string name="main_activity_drawer_menu_settings">Настройки</string>
 
+    <!-- Main Status Title -->
+    <string name="main_activity_status_online">В сети</string>
+    <string name="main_activity_status_offline">Оффлайн</string>
+
     <!-- Muc menu -->
     <string name="muc_menu_leave_muc">Покинуть комнату</string>
     <string name="muc_menu_add_bookmark">В закладки</string>
