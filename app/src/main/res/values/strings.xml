@@ -51,7 +51,7 @@
 
     <!-- Accounts -->
     <string name="title_accounts_activity">Учетные записи</string>
-    <string name="accounts_item_edit_button">изменить</string>
+    <string name="accounts_item_edit_button_description">Редактировать</string>
 
     <!-- Accounts menu -->
     <string name="accounts_menu_choose">Выбрать</string>
@@ -88,7 +88,7 @@
     <string name="bookmarks_title">Закладки</string>
     <string name="bookmarks_menu_choose">Выбрать</string>
     <string name="bookmarks_menu_add">Добавить</string>
-    <string name="bookmarks_item_edit_button">Изменить</string>
+    <string name="bookmarks_item_edit_button_description">Редактировать</string>
     <string name="bookmarks_delete_chosen">Удалить</string>
     <string name="bookmarks_cancel_choise">Отмена</string>
 

@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -131,7 +132,7 @@ public class BookmarksFragment extends Fragment {
         public class BookmarkViewHolder extends RecyclerView.ViewHolder {
             public final View mView;
             public TextView mItemTextView = null;
-            public Button mEditButton = null;
+            public ImageButton mEditButton = null;
             public CheckBox mCheckBox = null;
             public BookmarkedConference mItem;
 
@@ -140,7 +141,7 @@ public class BookmarksFragment extends Fragment {
                 mView = itemView;
                 if(!withCheckBox){
                     mItemTextView = (TextView)itemView.findViewById(R.id.bookmarks_item_view);
-                    mEditButton = (Button)itemView.findViewById(R.id.bookmarks_item_edit_button);
+                    mEditButton = (ImageButton)itemView.findViewById(R.id.bookmarks_item_edit_button);
                 } else {
                     mCheckBox = (CheckBox) itemView.findViewById(R.id.bookmarks_item_check_box);
                     mItemTextView = (TextView)itemView.findViewById(R.id.bookmarks_item_view);

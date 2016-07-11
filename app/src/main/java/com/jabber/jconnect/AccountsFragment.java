@@ -14,6 +14,7 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -138,7 +139,7 @@ public class AccountsFragment extends Fragment {
             public final View mView;
             public RadioButton mItemViewRadio = null;
             public TextView mItemTextView = null;
-            public Button mEditButton = null;
+            public ImageButton mEditButton = null;
             public CheckBox mCheckBox = null;
             public Account mItem;
 
@@ -147,7 +148,7 @@ public class AccountsFragment extends Fragment {
                 mView = itemView;
                 if(!withCheckBox){
                     mItemViewRadio = (RadioButton)itemView.findViewById(R.id.accounts_item_radio_button);
-                    mEditButton = (Button)itemView.findViewById(R.id.accounts_item_edit_button);
+                    mEditButton = (ImageButton)itemView.findViewById(R.id.accounts_item_edit_button);
                 } else {
                     mCheckBox = (CheckBox) itemView.findViewById(R.id.accounts_item_check_box);
                     mItemTextView = (TextView)itemView.findViewById(R.id.accounts_item_textview);

@@ -7,22 +7,27 @@
 
         <item
             android:id="@+id/main_activity_drawer_menu_service_discover"
+            android:icon="@drawable/ic_action_web_site"
             android:title="@string/main_activity_drawer_menu_service_discover" />
 
         <item
             android:id="@+id/main_activity_drawer_menu_bookmarks"
+            android:icon="@drawable/ic_action_bookmark"
             android:title="@string/main_activity_drawer_menu_bookmarks" />
 
         <item
             android:id="@+id/main_activity_drawer_menu_accounts"
+            android:icon="@drawable/ic_action_accounts"
             android:title="@string/main_activity_drawer_menu_accounts" />
 
         <item
             android:id="@+id/main_activity_drawer_menu_settings"
+            android:icon="@drawable/ic_action_settings"
             android:title="@string/main_activity_drawer_menu_settings" />
 
         <item
             android:id="@+id/main_activity_drawer_menu_exit"
+            android:icon="@drawable/ic_action_exit"
             android:title="@string/main_activity_drawer_menu_exit" />
 
     </group>

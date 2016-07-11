@@ -19,16 +19,14 @@
         android:layout_weight="1"
         android:id="@+id/accounts_item_radio_button"/>
 
-    <Button
-        style="?android:attr/buttonStyleSmall"
+    <ImageButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/accounts_item_edit_button"
-        android:textSize="15sp"
-        android:minHeight="31dip"
-        android:background="@android:color/transparent"
         android:id="@+id/accounts_item_edit_button"
+        android:src="@drawable/ic_action_edit"
+        android:background="@android:color/transparent"
+        android:contentDescription="@string/accounts_item_edit_button_description"
         android:layout_marginLeft="5dp"
-        android:layout_marginRight="5dp"/>
+        android:layout_marginRight="5dp" />
 
 </LinearLayout>
